@@ -7,6 +7,12 @@ set(base_src
         Timestamp.cpp
         Timestamp.h
         copyable.h
-        Types.h)
+        Types.h
+        noncopyable.h
+        Atomic.h
+        Exception.cpp
+        Exception.h
+        CurrentThread.cpp
+        CurrentThread.h)
 
 add_library(base ${base_src})
