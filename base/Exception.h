@@ -19,7 +19,7 @@ namespace muduo
 
         const char* what() const noexcept override
         {
-            return messate_.c_str();
+            return message_.c_str();
         }
 
         const char* stackTrace() const noexcept
@@ -28,7 +28,7 @@ namespace muduo
         }
 
     private:
-        string messate_;
+        string message_;
         string stack_;
     };
 }

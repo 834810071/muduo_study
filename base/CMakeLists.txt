@@ -13,6 +13,13 @@ set(base_src
         Exception.cpp
         Exception.h
         CurrentThread.cpp
-        CurrentThread.h)
+        CurrentThread.h
+        Thread.h
+        Thread.cpp
+        Mutex.h
+        Condition.cpp
+        Condition.h
+        CountDownLatch.h
+        CountDownLatch.cpp)
 
 add_library(base ${base_src})

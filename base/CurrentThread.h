@@ -23,8 +23,8 @@ namespace muduo
         // (3) 不带自定义构造函数和析构函数的类，如果希望修饰带自定义构造和析构函数的类，需要用到指针。
 
         // internal
-        extern __thread int t_cachedTid;
-        extern __thread char t_tidString[32];
+        extern __thread int t_cachedTid;    // 线程真实Tid的缓存
+        extern __thread char t_tidString[32];   // 真实线程Tid的字符串表示形式
         extern __thread int t_tidStringLength;
         extern __thread const char* t_threadName;
         void cacheTid();
