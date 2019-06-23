@@ -26,7 +26,7 @@ namespace muduo
         ~Thread();
 
         void start();
-        void join();   // return pthread_join();
+        int join();   // return pthread_join();
 
         bool started() const
         {
@@ -45,7 +45,7 @@ namespace muduo
 
         static int numCreated()
         {
-            return numCreated_.get()
+            return numCreated_.get();
         }
 
     private:
@@ -59,7 +59,8 @@ namespace muduo
         string name_;
         CountDownLatch latch_;
 
-        static AtomicInt32 numCreated_;
+        static AtomicInt32 numCreated_; // 静态成员的初始化要在类外进行
+                                        // 初始化的格式如下：数据类型  类名::静态成员变量名 = 初值；
     };
 }
 

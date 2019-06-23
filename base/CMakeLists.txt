@@ -23,3 +23,4 @@ set(base_src
         CountDownLatch.cpp)
 
 add_library(base ${base_src})
+target_link_libraries(base pthread)
