@@ -7,3 +7,5 @@
 >>> Codition[条件]    
 >>> CountDownLatch[倒计时器]    
 >>> Thread[线程]    
+>>> BlockingQueue[阻塞队列]     
+>>> BoundedBlockingQueue[有界阻塞队列]     
