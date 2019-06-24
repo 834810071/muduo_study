@@ -20,7 +20,9 @@ set(base_src
         Condition.cpp
         Condition.h
         CountDownLatch.h
-        CountDownLatch.cpp)
+        CountDownLatch.cpp
+        BlockingQueue.h
+        BoundedBlockingQueue.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)

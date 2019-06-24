@@ -7,7 +7,7 @@
 
 
 #include <boost/noncopyable.hpp>
-#include "../../thread/Thread.h"
+#include "../../base/Thread.h"
 
 namespace muduo
 {
