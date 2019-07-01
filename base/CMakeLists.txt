@@ -22,7 +22,10 @@ set(base_src
         CountDownLatch.h
         CountDownLatch.cpp
         BlockingQueue.h
-        BoundedBlockingQueue.h)
+        BoundedBlockingQueue.h
+        ThreadPool.cpp
+        ThreadPool.h
+        Singleton.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)

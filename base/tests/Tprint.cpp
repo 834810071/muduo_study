@@ -52,8 +52,7 @@ int A::num_ = 0;
 int main(void)
 {
     A* a = new A(2);
-    a->setNum_(a->getNum_() + 1);
-    cout << a->getNum_() << endl;
+    cout <<  i << endl;
     return 0;
 }
 

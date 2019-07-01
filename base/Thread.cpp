@@ -182,7 +182,7 @@ namespace muduo
         detail::ThreadData* data = new detail::ThreadData(func_, name_, &tid_, &latch_);
                         // 指向线程标识符的指针 设置线程属性 线程运行函数的起始地址 参数
         // pthread_create() 在调用成功完成之后返回零。其他任何返回值都表示出现了错误。
-        if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))
+        if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))  // 创建线程
         {
             started_ = false;
             delete data;

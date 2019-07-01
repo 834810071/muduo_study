@@ -50,6 +50,11 @@ namespace muduo
             return t_tidStringLength;
         }
 
+        inline const char* name()
+        {
+            return t_threadName;
+        }
+
         bool isMainThread();
 
         void sleepUsec(int64_t usec);   // for testing
