@@ -25,7 +25,9 @@ set(base_src
         BoundedBlockingQueue.h
         ThreadPool.cpp
         ThreadPool.h
-        Singleton.h)
+        Singleton.h
+        ThreadLocal.h
+        ThreadLocalSingleton_test.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)
