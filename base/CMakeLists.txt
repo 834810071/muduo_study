@@ -27,7 +27,14 @@ set(base_src
         ThreadPool.h
         Singleton.h
         ThreadLocal.h
-        ThreadLocalSingleton_test.h)
+        ThreadLocalSingleton_test.h
+        Logging.h
+        Logging.cpp
+        LogStream.cpp
+        LogStream.h
+        LogFile.cpp
+        LogFile.h
+        StringPiece.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)
