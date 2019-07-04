@@ -11,4 +11,6 @@
 >>> BoundedBlockingQueue[有界阻塞队列]   
 >>> ThreadPool[线程池]   
 >>> Singleton[单例模式]   
+>>> ThreadLocal[线程本地存储]     
+>>> ThreadLocalSingleton[线程本地存储单例模式]     
 
