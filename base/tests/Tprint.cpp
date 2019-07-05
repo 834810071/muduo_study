@@ -1,59 +1,14 @@
-//
-// Created by jxq on 19-6-15.
-//
-#include <stdio.h>
-#include <pthread.h>
-#include <string.h>
-#include <unistd.h>
-#include <semaphore.h>
-#include <sys/time.h>
-#include <iostream>
+#include <boost/test/included/unit_test.hpp>
+#include <boost/test/parameterized_test.hpp>
+using namespace boost::unit_test;
 
-#define SENDSIGTIME 10
-
-using namespace std;
-
-class A
+void free_test_function( int i )
 {
-public:
-    A(int n)
-        : n_(n)
-    {
-
-    }
-
-    ~A()
-    {
-
-    }
-
-    int getN_() const {
-        return n_;
-    }
-
-    void setN_(int n_) {
-        A::n_ = n_;
-    }
-
-    static int getNum_() {
-        return num_;
-    }
-
-    static void setNum_(int num_) {
-        A::num_ = num_;
-    }
-
-private:
-    int n_;
-    static int num_;
-};
-int A::num_ = 0;
-
-int main(void)
-{
-    A* a = new A(2);
-    cout <<  i << endl;
-    return 0;
+    BOOST_CHECK( i < 4 /* test assertion */ );
 }
 
-
+test_suite* init_unit_test_suite( int argc, char* argv[] ) {
+    int params[] = {1, 2, 3, 4, 5};
+    framework::master_test_suite().add(BOOST_PARAM_TEST_CASE(&free_test_function, params, params + 5));
+    return 0;
+}
