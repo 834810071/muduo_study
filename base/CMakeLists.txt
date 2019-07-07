@@ -34,7 +34,11 @@ set(base_src
         LogStream.h
         LogFile.cpp
         LogFile.h
-        StringPiece.h)
+        StringPiece.h
+        TimeZone.cpp
+        TimeZone.h
+        Date.cpp
+        Date.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)

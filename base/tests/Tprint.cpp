@@ -1,14 +1,37 @@
-#include <boost/test/included/unit_test.hpp>
-#include <boost/test/parameterized_test.hpp>
-using namespace boost::unit_test;
+#include<iostream>
+#include<memory>
+#include<string.h>
+#include<string>
+#include <stdlib.h>
+#include<algorithm>
 
-void free_test_function( int i )
+class T
 {
-    BOOST_CHECK( i < 4 /* test assertion */ );
-}
+public:
+    T(int i)
+    {
+        num = i;
+    }
+private:
+    int num;
+};
 
-test_suite* init_unit_test_suite( int argc, char* argv[] ) {
-    int params[] = {1, 2, 3, 4, 5};
-    framework::master_test_suite().add(BOOST_PARAM_TEST_CASE(&free_test_function, params, params + 5));
+class B
+{
+public:
+    explicit B(int i)
+    {
+        num = i;
+    }
+private:
+    int num;
+};
+
+int main()
+{
+    T t = 12;
+//    B b = 12;//不能隐身调用其构造函数
+    B b(12);
     return 0;
 }
+
