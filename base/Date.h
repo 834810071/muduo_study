@@ -21,8 +21,8 @@ namespace muduo
             int day;    // [1 .. 31]
         };
 
-        static const kDaysPerWeek = 7;
-        static const kJulianDayOf1970_01_01;
+        static const int kDaysPerWeek = 7;
+        static const int kJulianDayOf1970_01_01;
 
         // Constucts an invalid Date
         Date()
@@ -44,7 +44,7 @@ namespace muduo
 
         void swap(Date& that)
         {
-            std::swap(julianDayNumber_, that, julianDayNumber_);
+            std::swap(julianDayNumber_, that.julianDayNumber_);
         }
 
         bool valid() const

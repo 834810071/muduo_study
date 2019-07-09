@@ -68,10 +68,11 @@ namespace muduo
             int size_;          // 文件名称长度
         };
 
+        // 构造Impl对象
         Logger(SourceFile file, int line);
         Logger(SourceFile file, int line, LogLevel level);
         Logger(SourceFile file, int line, LogLevel level, const char* func);
-        Logger(SourceFile file, int line, bool toAbort());
+        Logger(SourceFile file, int line, bool toAbort);
         ~Logger();
 
         // 返回Impl的LogStream对象

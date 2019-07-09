@@ -1,37 +1,31 @@
-#include<iostream>
-#include<memory>
-#include<string.h>
-#include<string>
-#include <stdlib.h>
-#include<algorithm>
+// Copyright (c) 2015
+// Author: Chrono Law
+#include <iostream>
+using namespace std;
 
-class T
+#include <boost/format.hpp>
+#include <boost/test/minimal.hpp> // 最小化测试头文件
+
+int test_main( int argc, char* argv[] )
 {
-public:
-    T(int i)
+    using namespace boost;
+    format fmt("%d-%d");
+
+    BOOST_CHECK(fmt.size() != 0); // 断言测试通过, 如不通过不影响程序执行
+    fmt % 12 % 34;
+    BOOST_REQUIRE(fmt.str() == "12-34"); // 要求断言必须通过, 否则程序停止执行
+
+    BOOST_ERROR("演示一条错误消息"); // 给出错误信息, 程序继续执行
+
+    fmt.clear();
+    fmt % 12;
+    try
     {
-        num = i;
+        std::cout << fmt; // 输入参数不完整, 抛出异常
     }
-private:
-    int num;
-};
-
-class B
-{
-public:
-    explicit B(int i)
+    catch (...)
     {
-        num = i;
+        BOOST_FAIL("致命错误，测试终止"); // 给出错误信息, 程序运行停止
     }
-private:
-    int num;
-};
-
-int main()
-{
-    T t = 12;
-//    B b = 12;//不能隐身调用其构造函数
-    B b(12);
-    return 0;
+    return 0; // 必须返回值
 }
-

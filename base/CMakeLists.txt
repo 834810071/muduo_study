@@ -38,7 +38,11 @@ set(base_src
         TimeZone.cpp
         TimeZone.h
         Date.cpp
-        Date.h)
+        Date.h
+        FileUtil.cc
+        FileUtil.h
+        ProcessInfo.cc
+        ProcessInfo.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)
