@@ -18,7 +18,7 @@ namespace FileUtil
 {
 
 // read small file < 64KB
-class ReadSmallFile : noncopyable
+class ReadSmallFile : noncopyable // 小文件读取
 {
  public:
   ReadSmallFile(StringArg filename);
@@ -27,7 +27,7 @@ class ReadSmallFile : noncopyable
   // return errno
   template<typename String>
   int readToString(int maxSize,
-                   String* content,
+                   String* content, // 读入content缓冲区
                    int64_t* fileSize,
                    int64_t* modifyTime,
                    int64_t* createTime);
@@ -46,6 +46,7 @@ class ReadSmallFile : noncopyable
   char buf_[kBufferSize];
 };
 
+// readFile函数，调用ReadSmallFile类中的readToString方法，供外部将小文件中的内容转化为字符串
 // read the file content, returns errno if error happens.
 template<typename String>
 int readFile(StringArg filename,
@@ -77,9 +78,9 @@ class AppendFile : noncopyable
 
   size_t write(const char* logline, size_t len);
 
-  FILE* fp_;
-  char buffer_[64*1024];
-  off_t writtenBytes_;
+  FILE* fp_;  // 文件指针
+  char buffer_[64*1024];  // 缓冲区 64K
+  off_t writtenBytes_;    // 已经写入的字节数
 };
 
 }  // namespace FileUtil

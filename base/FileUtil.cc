@@ -15,6 +15,7 @@
 
 using namespace muduo;
 
+// 非线程安全
 FileUtil::AppendFile::AppendFile(StringArg filename)
   : fp_(::fopen(filename.c_str(), "ae")),  // 'e' for O_CLOEXEC
     writtenBytes_(0)
@@ -29,13 +30,14 @@ FileUtil::AppendFile::~AppendFile()
   ::fclose(fp_);
 }
 
+// 不是线程安全的，需要外部加锁
 void FileUtil::AppendFile::append(const char* logline, const size_t len)
 {
-  size_t n = write(logline, len);
-  size_t remain = len - n;
-  while (remain > 0)
+  size_t n = write(logline, len); // n是已经写了的字节数
+  size_t remain = len - n;  // 相减大于0表示未写完
+  while (remain > 0)  // 剩余写入字节数大于0，继续写，直到写完
   {
-    size_t x = write(logline + n, remain);
+    size_t x = write(logline + n, remain);  // 同样x是已经写的
     if (x == 0)
     {
       int err = ferror(fp_);
@@ -45,11 +47,11 @@ void FileUtil::AppendFile::append(const char* logline, const size_t len)
       }
       break;
     }
-    n += x;
+    n += x; // 偏移
     remain = len - n; // remain -= x
   }
 
-  writtenBytes_ += len;
+  writtenBytes_ += len; // 已经写入个数
 }
 
 void FileUtil::AppendFile::flush()
@@ -82,6 +84,7 @@ FileUtil::ReadSmallFile::~ReadSmallFile()
   }
 }
 
+// 下面是提供的两个模板函，是ReadSmallFile类中的分别是读取到字符串string类型和读取到缓冲区buffer类型
 // return errno
 template<typename String>
 int FileUtil::ReadSmallFile::readToString(int maxSize,
@@ -97,13 +100,15 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
   {
     content->clear();
 
-    if (fileSize)
+    if (fileSize) // 如果不为空，获取文件大小
     {
+      // fstat函数用来 获取文件（普通文件，目录，管道，socket，字符，块（）的属性
       struct stat statbuf;
-      if (::fstat(fd_, &statbuf) == 0)
+      if (::fstat(fd_, &statbuf) == 0)  // fstat用来获取文件大小，保存到缓冲区当中
       {
         if (S_ISREG(statbuf.st_mode))
         {
+          // stat结构体中有st_size参数就是文件大小，传给输入参数指针
           *fileSize = statbuf.st_size;
           content->reserve(static_cast<int>(std::min(implicit_cast<int64_t>(maxSize), *fileSize)));
         }
@@ -111,7 +116,7 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
         {
           err = EISDIR;
         }
-        if (modifyTime)
+        if (modifyTime) // 修改时间，创建时间等
         {
           *modifyTime = statbuf.st_mtime;
         }
@@ -128,8 +133,9 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
 
     while (content->size() < implicit_cast<size_t>(maxSize))
     {
+      // 读操作
       size_t toRead = std::min(implicit_cast<size_t>(maxSize) - content->size(), sizeof(buf_));
-      ssize_t n = ::read(fd_, buf_, toRead);
+      ssize_t n = ::read(fd_, buf_, toRead);  // 从文件当中读取数据到字符串
       if (n > 0)
       {
         content->append(buf_, n);
@@ -152,6 +158,7 @@ int FileUtil::ReadSmallFile::readToBuffer(int* size)
   int err = err_;
   if (fd_ >= 0)
   {
+    // //pread和read区别，pread读取完文件offset不会更改，以前在哪还在哪，而read会引发offset随读到额字节数移动
     ssize_t n = ::pread(fd_, buf_, sizeof(buf_)-1, 0);
     if (n >= 0)
     {
@@ -169,6 +176,7 @@ int FileUtil::ReadSmallFile::readToBuffer(int* size)
   return err;
 }
 
+// 对成员函数进行模板的显示实例化，提高效率
 template int FileUtil::readFile(StringArg filename,
                                 int maxSize,
                                 string* content,

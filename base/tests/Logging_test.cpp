@@ -29,7 +29,7 @@ void dummyOutput(const char* msg, int len)
 
 void bench(const char* type)
 {
-    muduo::Logger::setOutput(dummyOutput);
+    muduo::Logger::setOutput(dummyOutput);  // 修改输出位置
     muduo::Timestamp start(muduo::Timestamp::now());
     g_total = 0;
 
@@ -40,6 +40,7 @@ void bench(const char* type)
     longStr += " ";
     for (int i = 0; i < n; ++i)
     {
+        // Logger析构函数控制输出到哪 默认是stdout
         LOG_INFO << "Hello 0123456789" << " abcdefghijklmnopqrstuvwxyz"
                  << (kLongLog ? longStr : empty)
                  << i;

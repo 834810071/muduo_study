@@ -105,14 +105,15 @@ using namespace muduo;
 Logger::Impl::Impl(LogLevel level, int savedErrno, const muduo::Logger::SourceFile &file, int line)
     : time_(Timestamp::now()),  // 当前时间
       stream_(),                // 初始化logger[Impl]的四个成员
-      level_(level),
-      line_(line),
-      basename_(file)
+      level_(level),            // 日志级别
+      line_(line),              // 调用LOG_*<<所在行，由__LINE__获取
+      basename_(file)           // 调用LOG_*<<所在文件名，由__FILE__获取
 {
-    formatTime();   // 格式化时间
+    formatTime();   // 格式化时间 写入LogStream中
     CurrentThread::tid();   // 缓存当前线程id
     stream_ << T(CurrentThread::tidString(), CurrentThread::tidStringLength()); // 格式化线程tid字符串
     stream_ << T(LogLevelName[level], 6);   // 格式化级别，对应成字符串，先输出到缓冲区
+    // 如果有错误，写入错误信息
     if (savedErrno != 0)
     {
         stream_ << strerror_tl(savedErrno) << " (errno = " << savedErrno << ")";    // 如果错误码不为0，还要输出相对应信息
@@ -146,8 +147,11 @@ void Logger::Impl::formatTime()
     if (g_logTimeZone.valid())
     {
         Fmt us(".%06d", microseconds);
-        assert(us.length() == 8);
-        stream_ << T(t_time, 17) << T(us.data(), 8);
+        //printf("%s\n", us.data());
+        //assert(us.length() == 8);
+        assert(us.length() == 7);
+       // printf("%d\n", us.length());
+        stream_ << T(t_time, 17) << T(us.data(), 7);
     }
     else
     {
@@ -185,6 +189,13 @@ Logger::Logger(SourceFile file, int line, bool toAbort)
 {
 }
 
+// 由于是临时对象，所以析构函数接管了所有日志输出的任务
+//
+// 1. 为日志信息添加后缀，通常是源文件名和所在行号
+// 2. 从LogStream的缓冲区中回去所有日志信息，包括前缀和后缀
+// 3. 调用输出函数，默认将日志信息打印到屏幕上
+// 4. 如果日志级别是FATAL，那么会立即刷新缓冲区，同时发送abort终止程序运行
+
 // 析构函数中会调用impl_的finish方法
 Logger::~Logger()
 {
@@ -195,6 +206,7 @@ Logger::~Logger()
     // 调用全部输出方法，输出缓冲区内容，默认是输出到stdout
     g_output(buf.data(), buf.length());
 
+    // 如果当前日志级别是FATAL，表示是个终止程序的严重错误，将输出缓冲区的信息刷新到屏幕上，结束程序
     if (impl_.level_ == FATAL)
     {
         g_flush();
