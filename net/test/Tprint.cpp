@@ -1,81 +1,43 @@
-#include <iostream>
-#include <memory>
+#include <sys/eventfd.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>             /* Definition of uint64_t */
 
-template<typename T>
-class SmartPointer {
-private:
-    T* _ptr;
-    size_t* _count;
+#define handle_error(msg) \
+   do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-public:
-    SmartPointer(T* ptr = nullptr) :
-            _ptr(ptr) {
-        if (_ptr) {
-            _count = new size_t(1);
-        } else {
-            _count = new size_t(0);
-        }
-    }
+int
+main(int argc, char *argv[])
+{
+    uint64_t u;
 
-    SmartPointer(const SmartPointer& ptr) {
-        if (this != &ptr) {
-            this->_ptr = ptr._ptr;
-            this->_count = ptr._count;
-            (*this->_count)++;
-        }
-    }
+    int efd = eventfd(10, 0);
+    if (efd == -1)
+        handle_error("eventfd");
 
-    SmartPointer& operator=(const SmartPointer& ptr) {
-        if (this->_ptr == ptr._ptr) {
-            return *this;
-        }
-
-        if (this->_ptr) {
-            (*this->_count)--;
-            if (this->_count == 0) {
-                delete this->_ptr;
-                delete this->_count;
-            }
-        }
-
-        this->_ptr = ptr._ptr;
-        this->_count = ptr._count;
-        (*this->_count)++;
-        return *this;
-    }
-
-    T& operator*() {
-        assert(this->_ptr == nullptr);
-        return *(this->_ptr);
-
-    }
-
-    T* operator->() {
-        assert(this->_ptr == nullptr);
-        return this->_ptr;
-    }
-
-    ~SmartPointer() {
-        (*this->_count)--;
-        if (*this->_count == 0) {
-            delete this->_ptr;
-            delete this->_count;
-        }
-    }
-
-    size_t use_count(){
-        return *this->_count;
-    }
-};
-
-int main() {
+    int ret = fork();
+    if(ret == 0)
     {
-        SmartPointer<int> sp(new int(10));  // 1
-        SmartPointer<int> sp2(sp);  // 2
-        SmartPointer<int> sp3(new int(20)); // 1
-        sp2 = sp3;
-        std::cout << sp.use_count() << std::endl;   // 1
-        std::cout << sp3.use_count() << std::endl;  // 2
+        for (int j = 1; j < argc; j++) {
+            printf("Child writing %s to efd\n", argv[j]);
+            u = atoll(argv[j]);
+            ssize_t s = write(efd, &u, sizeof(uint64_t));
+            if (s != sizeof(uint64_t))
+                handle_error("write");
+        }
+        printf("Child completed write loop\n");
+
+        exit(EXIT_SUCCESS);
     }
-    //delete operator
+    else
+    {
+        sleep(2);
+
+        ssize_t s = read(efd, &u, sizeof(uint64_t));
+        if (s != sizeof(uint64_t))
+            handle_error("read");
+        printf("Parent read %llu from efd\n",(unsigned long long)u);
+        exit(EXIT_SUCCESS);
+    }
 }
