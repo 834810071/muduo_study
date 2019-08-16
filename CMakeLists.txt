@@ -8,5 +8,6 @@ ADD_SUBDIRECTORY(base/tests)
 ADD_SUBDIRECTORY(base)
 ADD_SUBDIRECTORY(net)
 ADD_SUBDIRECTORY(net/test)
+ADD_SUBDIRECTORY(book_study/Chapter01)
 
 add_executable(mymuduo main.cpp)
