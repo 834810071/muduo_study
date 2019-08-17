@@ -22,5 +22,17 @@
 
 [智能指针boost::scoped_str](https://www.cnblogs.com/helloamigo/p/3572533.html) [关键字explicit](https://blog.csdn.net/guoyunfei123/article/details/89003369)
 
+## 1.6 神器shared_ptr/weak_ptr
+[shared_ptr/weak_ptr](https://blog.csdn.net/ingvar08/article/details/79200424) [智能指针](https://blog.csdn.net/qingdujun/article/details/74858071)
+
+## 1.7 插曲：系统地避免各种指针错误
+>> c++可能出现的内存问题大致有这么几个方面：
+>>> 1. 缓冲区溢出(buffer overrun)：用std::vector<char>/std::string或自己编写Buffer class来管理缓冲区，自动记住缓冲区的长度，并通过成员函数而不是裸指针来修改缓冲区。
+>>> 2. 空悬指针/野指针:用shared_ptr/weak_ptr。
+>>> 3. 重复释放(double delete)：用scoped_ptr，只在对象析构的时候释放一次。
+>>> 4. 内存泄露(memory leak)：用scoped_ptr，对象析构的时候自动释放内存。
+>>> 5. 不配对的new[]/delete:把new统统替换为std::vector/scoped_array。
+>>> 6. 内存碎片(memory fragmentation): &9.2.1和&A.1.8探讨。
+
 
 
