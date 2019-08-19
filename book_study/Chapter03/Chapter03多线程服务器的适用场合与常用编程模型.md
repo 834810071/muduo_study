@@ -4,9 +4,14 @@
 >>线程的特点是共享地址空间，从而可以高效的共享数据。一台机器上的多个进程能够高效地共享代码段，但不能共享数据。
 
 ## 3.2 单线程服务器的常用的编程模型
->> 最广泛的：“non-blocking IO + IO multiplexing”,程序的基本结构是一个事件循环（event loop），以事件驱动(event-driven)和事件回调的方式实现业务逻辑（[Reactor模式](https://juejin.im/post/5bbd9b546fb9a05d2068651c)）   
+>> 最广泛的：“non-blocking IO + IO multiplexing”,程序的基本结构是一个事件循环（event loop），以事件驱动(event-driven)和事件回调的方式实现业务逻辑（[Reactor模式](https://juejin.im/post/5bbd9b546fb9a05d2068651c)）     
 
-![单线程Reactor模式](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%8D%95%E7%BA%BF%E7%A8%8B%20Reactor%20%E6%A8%A1%E5%BC%8F "单线程Reactor模式")  
+单线程Reactor模式   
+
+![单线程Reactor模式](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%8D%95%E7%BA%BF%E7%A8%8B%20Reactor%20%E6%A8%A1%E5%BC%8F "单线程Reactor模式")   
+
+多线程Reactor模式    
+
 ![多线程Reactor模式](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%A4%9A%E7%BA%BF%E7%A8%8B%20Reactor%20%E6%A8%A1%E5%BC%8F "多线程Reactor模式")  
 
 
