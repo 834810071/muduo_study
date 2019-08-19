@@ -8,6 +8,7 @@
 >> MutexLock封装临界区（critical section），这是一个简单的资源类，用RAII(RAII全称是“Resource Acquisition is Initialization”，直译过来是“资源获取即初始化”,也就是说在构造函数中申请分配资源，在析构函数中释放资源)手法封装互斥器的创建与销毁。在Linux下是pthread_mutex_t，默认是不可重入的（&2.1.1）。MutexLock一般是别的class的数据成员。   
 
 [RAII参考链接](https://www.cnblogs.com/jiangbin/p/6986511.html)
+>> RAII ：通常的做法是owner持有指向child的shared_ptr,child持有指向owner的weak_ptr。
 
 >> MutexLockGuard封装临界区的进入和退出，即加锁和解锁。MutexLockGuard一般是个栈上的对象，它的作用域刚好等于临界区域。
 
@@ -33,6 +34,9 @@
 >>> 4. 内存泄露(memory leak)：用scoped_ptr，对象析构的时候自动释放内存。
 >>> 5. 不配对的new[]/delete:把new统统替换为std::vector/scoped_array。
 >>> 6. 内存碎片(memory fragmentation): &9.2.1和&A.1.8探讨。
+
+## 1.8 应用到Observer上
+[可重入锁与不可重入锁](https://blog.csdn.net/qq_29519041/article/details/86583945)
 
 
 
