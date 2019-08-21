@@ -27,23 +27,24 @@
 
 Buffer类图   
 
-![Buffer类图]( "Buffer类图")
+![Buffer类图](https://github.com/834810071/muduo_study/blob/master/book_study/Buffer%E7%B1%BB%E5%9B%BE.gif "Buffer类图")
 
 Muduo Buffer 类的数据结构    
 
-![Buffer 类的数据结构]( "Buffer类的数据结构")
+![Buffer 类的数据结构]( https://github.com/834810071/muduo_study/blob/master/book_study/Muduo%20Buffer%20%E7%B1%BB%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.gif "Buffer类的数据结构")
 
 >>两个index把vector的内容分为三块：prependable、readable、writable。灰色部分是Buffer的有效载荷(payload)。   
 >> prepenable = readIndex； readable = writeIndex - readIndex； writable = size() - writeIndex。
 
 Buffer初始化数据结构图   
 
-![Buffer初始化数据结构图]( "Buffer初始化数据结构图")
+![Buffer初始化数据结构图](https://github.com/834810071/muduo_study/blob/master/book_study/Buffer%E5%88%9D%E5%A7%8B%E5%8C%96%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%9B%BE.gif "Buffer初始化数据结构图")
 
 ### 7.4.5Buffer的操作
 **基本的read-write cycle**
 >>向Buffer写入200字节后的布局   
-![向Buffer写入200字节后的布局]( "向Buffer写入200字节后的布局")
+
+![向Buffer写入200字节后的布局](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%90%91Buffer%E5%86%99%E5%85%A5200%E5%AD%97%E8%8A%82%E5%90%8E%E7%9A%84%E5%B8%83%E5%B1%80.gif "向Buffer写入200字节后的布局")
 
    
      
