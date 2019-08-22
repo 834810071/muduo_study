@@ -8,7 +8,7 @@
 >> 首先定义EventLoop class的基本接口：构造函数、析构函数、loop()成员函数。  
 >> one loop per thread顾名思义每个线程只能有一个EventLoop对象，因此EventLoop的构造函数会检查当前线程是否创建了其他EventLoop对象。EventLoop的构造函数会记住本对象所属的线程（threadId_）。创建EventLoop对象的线程是**IO线程**，其主要功能是运行事件循环EventLoop::loop()。EventLoop对象的生命周期和其所属的线程一样长，它不必是heap对象。
 [select、poll、epoll之间的区别总结](https://www.cnblogs.com/Anker/p/3265058.html)   
-![poll事件类型]( "poll事件类型")
+![poll事件类型](https://github.com/834810071/muduo_study/blob/master/book_study/poll%E4%BA%8B%E4%BB%B6%E7%B1%BB%E5%9E%8B "poll事件类型")
 
 ## 8.1 Rector的关键结构
 >>Reactor最核心的事件分发机制，即将IO multiplexing拿到的IO事件分发给各个文件描述符(fd)的事件处理函数。  
