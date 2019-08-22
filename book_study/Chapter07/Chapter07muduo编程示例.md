@@ -50,31 +50,31 @@ Buffer初始化数据结构图
 
 >> 如果有人从 Buffer read() & retrieve() （下称“读入”）了 50 字节。与上图相比，readIndex 向后移动 50 字节，writeIndex 保持不变，readable 和 writable 的值也有变化（这句话往后从略）。  
 
-![读入50字节]( "读入50字节")
+![读入50字节](https://github.com/834810071/muduo_study/blob/master/book_study/%E8%AF%BB%E5%85%A550%E5%AD%97%E8%8A%82.gif "读入50字节")
 
 >>然后又写入了 200 字节，writeIndex 向后移动了 200 字节，readIndex 保持不变   
 
-![又写入了 200 字节]( "又写入了200字节")
+![又写入了 200 字节](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%8F%88%E5%86%99%E5%85%A5%E4%BA%86%20200%20%E5%AD%97%E8%8A%82.gif "又写入了200字节")
 
 >> 接下来，一次性读入 350 字节，请注意，由于全部数据读完了，readIndex 和 writeIndex 返回原位以备新一轮使用  
 
-![返回原位]( "返回原位")
+![返回原位](https://github.com/834810071/muduo_study/blob/master/book_study/Buffer%E5%88%9D%E5%A7%8B%E5%8C%96%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%9B%BE.gif "返回原位")
    
 **自动增长**
 
-![又写入了 200 字节]( "又写入了200字节")
+![又写入了 200 字节](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%8F%88%E5%86%99%E5%85%A5%E4%BA%86%20200%20%E5%AD%97%E8%8A%82.gif "又写入了200字节")
 
 >> 客户代码一次性写入 1000 字节，而当前可写的字节数只有 624，那么 buffer 会自动增长以容纳全部数据。注意 readIndex 返回到了前面，以保持 prependable 等于 kCheapPrependable。由于 vector 重新分配了内存，原来指向它元素的指针会失效，这就是为什么 readIndex 和 writeIndex 是整数下标而不是指针。  
 
-![自动增长]( "自动增长")
+![自动增长](https://github.com/834810071/muduo_study/blob/master/book_study/%E8%87%AA%E5%8A%A8%E5%A2%9E%E9%95%BF.gif "自动增长")
 
 >> 然后读入 350 字节，readIndex 前移  
 
-![读入 350 字节]( "读入350字节")
+![读入 350 字节](https://github.com/834810071/muduo_study/blob/master/book_study/%E8%AF%BB%E5%85%A5%20350%20%E5%AD%97%E8%8A%82.gif "读入350字节")
 
 >> 最后，读完剩下的 1000 字节，readIndex 和 writeIndex 返回 kCheapPrependable  
 
-![读完剩下的 1000 字节]( "读完剩下的1000字节")
+![读完剩下的 1000 字节](https://github.com/834810071/muduo_study/blob/master/book_study/%E8%AF%BB%E5%AE%8C%E5%89%A9%E4%B8%8B%E7%9A%84%201000%20%E5%AD%97%E8%8A%82.gif "读完剩下的1000字节")
 
 >> 注意 buffer 并没有缩小大小，下次写入 1350 字节就不会重新分配内存了。换句话说，Muduo Buffer 的 size() 是自适应的，它一开始的初始值是 1k，如果程序里边经常收发 10k 的数据，那么用几次之后它的 size() 会自动增长到 10k，然后就保持不变。这样一方面避免浪费内存（有的程序可能只需要 4k 的缓冲），另一方面避免反复分配内存。当然，客户代码可以手动 shrink() buffer size()。
 
