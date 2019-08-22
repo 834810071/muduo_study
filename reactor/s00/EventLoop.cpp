@@ -3,8 +3,7 @@
 //
 
 #include "EventLoop.h"
-
-#include "../../logging/Logging.h"
+#include "../../base/Logging.h"
 
 #include <assert.h>
 #include <poll.h>
@@ -42,7 +41,7 @@ void EventLoop::loop()
     assertInLoopThread();
     looping_ = true;
 
-    ::poll(NULL, 0, 5*1000);
+    ::poll(NULL, 0, 5*1000);    // 等5秒就退出
 
     LOG_TRACE << "EventLoop " << this << " stop looping";
     looping_ = false;
@@ -53,6 +52,11 @@ void EventLoop::abortNotInLoopThread()
     LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
               << " was created in threadId_  = " << threadId_
               << ", current thread id = " << CurrentThread::tid();
+}
+
+EventLoop* EventLoop::getEventLoopOfCurrentThread()
+{
+    return t_loopInThisThread;
 }
 
 

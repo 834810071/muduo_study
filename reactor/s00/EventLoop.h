@@ -18,6 +18,7 @@ public:
 
     void loop();    // 成员函数
 
+    // 断言是否在当前线程
     void assertInLoopThread()
     {
         if (!isInLoopThread())
@@ -31,12 +32,14 @@ public:
         return threadId_ == CurrentThread::tid();
     }
 
+    static EventLoop* getEventLoopOfCurrentThread();
+
 private:
 
     void abortNotInLoopThread();
 
     bool looping_;
-    const pid_t  threadId_;     // 创建进程时经常会用到进程号的类型定义:pid_t int类型
+    const pid_t threadId_;     // 创建进程时经常会用到进程号的类型定义:pid_t int类型
 };
 
 }
