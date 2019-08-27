@@ -3,12 +3,13 @@ project(mymuduo)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(ChannelSrc Channel.h
+set(ChannelSrc
+        Channel.h
         Channel.cpp
         Poller.h
-        Poller.cpp)
+        Poller.cpp
+        )
 
-add_library(Channelsrc ${ChannelSrc})
+add_library(s01 ${ChannelSrc})
 add_executable(s01test1 test1.cpp)
-
-target_link_libraries(s01test1 Channelsrc base)
+target_link_libraries(s01test1 s01 base s00 rt pthread)

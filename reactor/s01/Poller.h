@@ -22,7 +22,7 @@ class Channel;
 /// IO Multiplexing with poll(2).
 ///
 /// This class doesn't own the Channel objects.
-class Poller  : boost::noncopyable
+class Poller : boost::noncopyable
 {
 public:
     typedef vector<Channel*> ChannelList;

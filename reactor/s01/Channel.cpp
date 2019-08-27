@@ -4,6 +4,7 @@
 
 #include "Channel.h"
 #include "../../base/Logging.h"
+#include "../s00/EventLoop.h"
 #include <poll.h>
 
 using namespace muduo;
@@ -24,7 +25,7 @@ Channel::Channel(EventLoop* loop, int fdArg)
 
 void Channel::update()
 {
-    loop_->updateChannel();
+    loop_->updateChannel(this);
 }
 
 void Channel::handleEvent()

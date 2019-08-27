@@ -45,7 +45,7 @@ public:
     {
         return fd_;
     }
-    int event_() const
+    int events() const
     {
         return events_;
     }
@@ -105,7 +105,7 @@ private:
     const int fd_;
     int events_;    // 关心的IO事件，由用户设置    // 名字来自poll(2)的struct pollfd; /* requested events */
     int revents_;   // 目前的活动事件，由EventLoop/Poller设置。 返回事件   /* returned events */
-    int index_;     // used by Poller
+    int index_;     // used by Poller  在Poller::pollfds_中的索引
 
     EventCallback readCallback_;
     EventCallback writeCallback_;

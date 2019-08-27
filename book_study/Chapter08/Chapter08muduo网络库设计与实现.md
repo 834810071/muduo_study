@@ -6,7 +6,8 @@
 
 ##8.0 什么都不做的EventLoop
 >> 首先定义EventLoop class的基本接口：构造函数、析构函数、loop()成员函数。  
->> one loop per thread顾名思义每个线程只能有一个EventLoop对象，因此EventLoop的构造函数会检查当前线程是否创建了其他EventLoop对象。EventLoop的构造函数会记住本对象所属的线程（threadId_）。创建EventLoop对象的线程是**IO线程**，其主要功能是运行事件循环EventLoop::loop()。EventLoop对象的生命周期和其所属的线程一样长，它不必是heap对象。
+>> one loop per thread顾名思义每个线程只能有一个EventLoop对象，因此EventLoop的构造函数会检查当前线程是否创建了其他EventLoop对象。EventLoop的构造函数会记住本对象所属的线程（threadId_）。创建EventLoop对象的线程是**IO线程**，其主要功能是运行事件循环EventLoop::loop()。EventLoop对象的生命周期和其所属的线程一样长，它不必是heap对象。  
+>> 创建了EventLoop对象的线程是**IO线程**   
 [select、poll、epoll之间的区别总结](https://www.cnblogs.com/Anker/p/3265058.html)   
 ![poll事件类型](https://github.com/834810071/muduo_study/blob/master/book_study/poll%E4%BA%8B%E4%BB%B6%E7%B1%BB%E5%9E%8B "poll事件类型")
 
@@ -24,3 +25,15 @@
 
 > Poller::poll()是Poller的核心，它调用poll(2)获得当前获得的IO事件，然后填充调用方传入的activeChannels，并返回poll(2)return的时刻。  
 >> Poller的职责：只负责IO multiplexing，不负责事件的分发(dispatching)。
+
+Reactor时序图
+
+![Reactor时序图](https://github.com/834810071/muduo_study/blob/master/book_study/Reactor%E6%97%B6%E5%BA%8F%E5%9B%BE.png "Reactor时序图")
+
+## TimerQueue定时器
+### 8.2.1 TimerQueue class
+>>muduo 的定时器功能由三个class实现，TimerId、Timer、TimerQueue，用户只能看到第一个class，另外两个都是内部细节实现。   
+
+TimerQueue时序图   
+
+![TimerQueue时序图](https://github.com/834810071/muduo_study/blob/master/book_study/TimerQueue%E6%97%B6%E5%BA%8F%E5%9B%BE.png "TimerQueue时序图")

@@ -57,3 +57,39 @@ void Poller::fillActiveChannel(int numEvents, ChannelList* activeChannels) const
 
     }
 }
+
+void Poller::updateChannel(muduo::Channel *channel)
+{
+    assertInLoopThread();
+    LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
+    if (channel->index() < 0)
+    {
+        // a new one, add to pollfds_
+        assert(channels_.find(channel->fd()) == channels_.end());
+        struct pollfd pfd;
+        pfd.fd = channel->fd();
+        pfd.events = channel->events();
+        pfd.revents = 0;
+        pollfds_.push_back(pfd);
+        int idx = static_cast<int>(pollfds_.size()) - 1;
+        channel->set_index(idx);
+        channels_[pfd.fd] = channel;
+    }
+    else
+    {
+        // update existing one
+        assert(channels_.find(channel->fd()) != channels_.end());
+        assert(channels_[channel->fd()] == channel);
+        int idx = channel->index();
+        assert(0 <= idx && idx < static_cast<int>(channels_.size()));
+        struct pollfd& pfd = pollfds_[idx];
+        assert(pfd.fd == channel->fd() || pfd.fd == -1);
+        pfd.events = static_cast<short>(channel->events());
+        pfd.revents = 0;
+        if (channel->isNoneEvent())
+        {
+            // ignore this pollfd;
+            pfd.fd = -1;
+        }
+    }
+}
