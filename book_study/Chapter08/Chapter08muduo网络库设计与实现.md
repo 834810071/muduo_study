@@ -36,4 +36,9 @@ Reactor时序图
 
 TimerQueue时序图   
 
-![TimerQueue时序图](https://github.com/834810071/muduo_study/blob/master/book_study/TimerQueue%E6%97%B6%E5%BA%8F%E5%9B%BE.png "TimerQueue时序图")
+![TimerQueue时序图](https://github.com/834810071/muduo_study/blob/master/book_study/TimerQueue%E6%97%B6%E5%BA%8F%E5%9B%BE.png "TimerQueue时序图")  
+
+[linux新定时器：timefd及相关操作函数](https://www.cnblogs.com/mickole/p/3261879.html)
+
+## 8.3 EventLoop::runInLoop()  
+[eventfd](https://www.jianshu.com/p/2704cd87200a)  

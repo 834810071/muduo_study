@@ -6,7 +6,9 @@
 #include "TimerQueue.h"
 #include <sys/timerfd.h>
 #include "../../base/Logging.h"
+#include <iostream>
 
+using namespace std;
 
 
 namespace muduo
@@ -16,7 +18,7 @@ namespace muduo
         int createTimerfd()
         {
             int timerfd = ::timerfd_create(CLOCK_MONOTONIC,
-                                           TFD_NONBLOCK | TFD_CLOEXEC);
+                                           TFD_NONBLOCK | TFD_CLOEXEC); // 它是用来创建一个定时器描述符timerfd
             if (timerfd < 0)
             {
                 LOG_SYSFATAL << "Failed in timerfd_create";
@@ -43,6 +45,7 @@ namespace muduo
         void readTimerfd(int timerfd, Timestamp now)
         {
             uint64_t howmany;
+            // 当定时器超时，read读事件发生即可读，返回超时次数
             ssize_t n = ::read(timerfd, &howmany, sizeof howmany);
             LOG_TRACE << "TimerQueue::handleRead() " << howmany << " at " << now.toString();
             if (n != sizeof howmany)
@@ -58,7 +61,10 @@ namespace muduo
             struct itimerspec oldValue;
             bzero(&newValue, sizeof newValue);
             bzero(&oldValue, sizeof oldValue);
+            // 结构体itimerspec就是timerfd要设置的超时结构体，
+            // 它的成员it_value表示定时器第一次超时时间
             newValue.it_value = howMuchTimeFromNow(expiration);
+            // 启动或关闭有fd指定的定时器
             int ret = ::timerfd_settime(timerfd, 0, &newValue, &oldValue);  // 能够启动和停止定时器
             if (ret)
             {
@@ -75,13 +81,13 @@ using namespace muduo::detail;
 TimerQueue::TimerQueue(EventLoop* loop)
     : loop_(loop),
       timerfd_(detail::createTimerfd()),
-      timerfdChannel_(loop, timerfd_),
+      timerfdChannel_(loop, timerfd_),  // 定时器描述符所属的Channel
       timers_()
 {
     timerfdChannel_.setReadCallback(
             boost::bind(&TimerQueue::handleRead, this));
     // we are always reading the timerfd, we disarm it with timerfd_settime.
-    timerfdChannel_.enableReading();
+    timerfdChannel_.enableReading();    // 添加timefd_到Poller::pollfds_
 }
 
 TimerQueue::~TimerQueue()
@@ -100,10 +106,12 @@ void TimerQueue::handleRead()
 {
     loop_->assertInLoopThread();
     Timestamp now(Timestamp::now());
-    detail::readTimerfd(timerfd_, now);
+    // 当定时器超时，read读事件发生即可读，返回超时次数
+    detail::readTimerfd(timerfd_, now); // 读取timerfd_
 
     std::vector<Entry> expired = getExpired(now);
 
+    // 执行到期任务
     // safe to callback outside critical section
     for (std::vector<Entry>::iterator it = expired.begin();
          it != expired.end(); ++it)
@@ -111,7 +119,7 @@ void TimerQueue::handleRead()
         it->second->run();
     }
 
-    reset(expired, now);
+    reset(expired, now);    // 清空到期队列 并给timerfd_重新赋值 [timers_开头没有到期才给timerfd_赋值(注册)，没到该怎么办]
 }
 
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
@@ -126,12 +134,25 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
     return expired;
 }
 
+//TimerId TimerQueue::addTimer(const muduo::TimerCallback &cb, muduo::Timestamp when, double interval)
+//{
+//    Timer* timer = new Timer(cb, when, interval);
+//    loop_->assertInLoopThread();
+//    bool earlisestChanged = insert(timer);
+//
+//    if (earlisestChanged)   // 如果插入在开头，那么需要重置timerfd_
+//    {
+//        //cout << i << endl;
+//        detail::resetTimerfd(timerfd_, timer->expiration());
+//    }
+//}
+
 TimerId TimerQueue::addTimer(const TimerCallback& cb,
                  Timestamp when,
                  double interval)
 {
     Timer* timer = new Timer(cb, when, interval);
-    loop_->runInLoop(boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+    loop_->runInLoop(boost::bind(&TimerQueue::addTimerInLoop, this, timer));    // 在IO线程中执行添加timer操作
     return TimerId(timer);
 }
 
@@ -140,7 +161,7 @@ void TimerQueue::addTimerInLoop(Timer* timer)
     loop_->assertInLoopThread();
     bool earlisestChanged = insert(timer);
 
-    if (earlisestChanged)
+    if (earlisestChanged)   // 如果插入在开头，那么需要重置timerfd_
     {
         detail::resetTimerfd(timerfd_, timer->expiration());
     }
@@ -153,7 +174,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     for (std::vector<Entry>::const_iterator it = expired.begin();
          it != expired.end(); ++it)
     {
-        if (it->second->repeat())
+        if (it->second->repeat())   // 如果是重复执行的任务
         {
             it->second->restart(now);
             insert(it->second);
@@ -167,20 +188,20 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 
     if (!timers_.empty())
     {
-        nextExpire = timers_.begin()->second->expiration();
+        nextExpire = timers_.begin()->second->expiration(); // 判断timers_开头是否到期
     }
 
-    if (nextExpire.valid())
+    if (nextExpire.valid()) // 如果没有到期
     {
-        resetTimerfd(timerfd_, nextExpire);
+        resetTimerfd(timerfd_, nextExpire); // 给timerfd_重新赋值
     }
 }
 
 
 bool TimerQueue::insert(Timer* timer)
 {
-    bool earliestChanged = false;
-    Timestamp when = timer->expiration();
+    bool earliestChanged = false;   // 判断是否插入timers_开头
+    Timestamp when = timer->expiration();   // 到期时间
     TimerList::iterator it = timers_.begin();
     if (it == timers_.end() || when < it->first)
     {

@@ -11,11 +11,24 @@
 
 
 #include <assert.h>
+#include <boost/bind.hpp>
+#include <sys/eventfd.h>
 
 using namespace muduo;
 
 __thread EventLoop* t_loopInThisThread = 0;
 const int kPollTimeMs = 10000;
+
+static int createEventfd()
+{
+    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (evtfd < 0)
+    {
+        LOG_SYSERR << "Failed in eventfd";
+        abort();
+    }
+    return evtfd;
+}
 
 // IO线程
 EventLoop::EventLoop()
@@ -23,7 +36,9 @@ EventLoop::EventLoop()
     quit_(false),
     threadId_(CurrentThread::tid()), // 记住本对象所属线程
     poller_(new Poller(this)),
-    timerQueue_(new TimerQueue(this))
+    timerQueue_(new TimerQueue(this)),
+    wakeupFd_(createEventfd()),
+    wakeupChannel_(new Channel(this, wakeupFd_))
 {
     LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
 
@@ -34,6 +49,9 @@ EventLoop::EventLoop()
     } else {
         t_loopInThisThread = this;
     }
+    wakeupChannel_->setReadCallback(boost::bind(&EventLoop::handleRead, this));
+    // we are always reading the wakeupfd
+    wakeupChannel_->enableReading();
 }
 
 EventLoop::~EventLoop()
@@ -55,7 +73,7 @@ void EventLoop::loop()
     while (!quit_)
     {
         activeChannels_.clear();
-        poller_->poll(kPollTimeMs, &activeChannels_);
+        poller_->poll(kPollTimeMs, &activeChannels_);       // 这里会循环一定时间，通过唤醒wakefd_来执行doPendingFunctors();
         for (ChannelList::iterator it = activeChannels_.begin(); it != activeChannels_.end(); ++it)
         {
             (*it)->handleEvent();   // 调用对应的回调函数
@@ -120,7 +138,7 @@ void EventLoop::queueInLoop(const Functor& cb)
     }
     if (!isInLoopThread() || callingPendingFunctors_)
     {
-        wakeup();
+        wakeup();   // 目前而言是针对于TimerQueue而言
     }
 }
 
@@ -148,7 +166,7 @@ void EventLoop::doPendingFunctors()
 
     for (size_t i = 0; i < functors.size(); ++i)
     {
-        functors[i]();
+        functors[i](); // Functor有可能再次调用queueInLoop()
     }
     callingPendingFunctors_ = false;
 }

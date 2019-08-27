@@ -10,9 +10,6 @@
 #include <boost/scoped_ptr.hpp>
 #include "../../base/Thread.h"
 #include "../s02/TimerId.h"
-//#include "../s02/TimerQueue.h"
-//#include "../s01/Channel.h"
-//#include "../s01/Poller.h"
 #include <vector>
 
 
