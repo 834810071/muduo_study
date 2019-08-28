@@ -205,6 +205,7 @@ bool TimerQueue::insert(Timer* timer)
     TimerList::iterator it = timers_.begin();
     if (it == timers_.end() || when < it->first)
     {
+        // 最早到期的定时器发生改变
         earliestChanged = true;
     }
     std::pair<TimerList::iterator, bool> result =

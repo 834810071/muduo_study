@@ -12,3 +12,6 @@ target_link_libraries(s03 s02 s01 s00)
 
 add_executable(s03test1 test1.cpp)
 target_link_libraries(s03test1 s03 s02 s01 s00 base rt pthread)
+
+add_executable(s03test2 test2.cpp)
+target_link_libraries(s03test2 s03 s02 s01 s00 base rt pthread)

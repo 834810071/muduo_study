@@ -88,6 +88,7 @@ private:
     boost::scoped_ptr<Channel> wakeupChannel_;
     ChannelList activeChannels_;
     MutexLock mutex_;
+    // pendingFunctors_存储需要在I/O线程中执行的任务集
     std::vector<Functor> pendingFunctors_;  // @GuardedBy mutex_
 
 
