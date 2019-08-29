@@ -103,7 +103,7 @@ int sockets::accept(int sockfd, struct sockaddr_in *addr)
             case EPERM:
             case EMFILE: // per-process lmit of open file desctiptor ???
                 // expected errors
-                errno = savedErrno;
+                errno = savedErrno; // 暂时错误忽略
                 break;
             case EBADF:
             case EFAULT:

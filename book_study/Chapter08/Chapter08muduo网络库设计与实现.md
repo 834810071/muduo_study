@@ -60,6 +60,10 @@ $8.6介绍TcpConnection断开连接。
 $8.7介绍Buffer class并用它读取数据。  
 $8.9完善TcpConnection，处理SIGPIPE、TCP keep alive等。  
 
-**Acceptor class**
-[sockaddr与sockaddr_in](https://blog.csdn.net/will130/article/details/53326740/)
+**Acceptor class**    
+[sockaddr与sockaddr_in](https://blog.csdn.net/will130/article/details/53326740/)  
+
+##8.5 TcpServer接受新连接  
+[TcpServer接受新连接](https://github.com/834810071/muduo_study/blob/master/book_study/TcpServer%E8%B0%83%E7%94%A8%E9%A1%BA%E5%BA%8F.png "TcpServer接受新连接")
+
  

@@ -10,12 +10,12 @@ using namespace muduo;
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      acceptSocket_(sockets::createNonblockingOrDie()),
+      acceptSocket_(sockets::createNonblockingOrDie()), // 创建套接字
       acceptChannel_(loop_, acceptSocket_.fd()),
       listenning_(false)
 {
     acceptSocket_.setReuseAddr(true);
-    acceptSocket_.bindAdddr(listenAddr);
+    acceptSocket_.bindAdddr(listenAddr);    // 绑定套接字
     acceptChannel_.setReadCallback(boost::bind(&Acceptor::handleRead, this));
 }
 
@@ -23,7 +23,7 @@ void Acceptor::listen()
 {
     loop_->assertInLoopThread();
     listenning_ = true;
-    acceptSocket_.listen();
+    acceptSocket_.listen(); // 监听
     acceptChannel_.enableReading();
 }
 
