@@ -1,5 +1,5 @@
-#Chapter06
-##6.3目录结构
+# Chapter06
+## 6.3目录结构
 >muduo        muduo库的主体
 >>base        与网络无关的基础代码，位于::muduo namespace，包括线程库   
 >>net         网络库，位于::muduo::net namespace
@@ -40,7 +40,7 @@
 
 [前向声明](https://blog.csdn.net/leigelaile1/article/details/80622429) [值语义与对象语义](https://www.cnblogs.com/Braveliu/p/3285908.html)   
 
-###6.3.3 线程模型
+### 6.3.3 线程模型
 >>one loop per thread + thread pool模型。每个线程最多有一个EventLoop，每个TcpConnection必须归某个EventLoop管理，所有的IO会转移到这个线程。换句话说，一个file descriptor只能由一个线程读写。TcpConnection所在的线程由其所属的EventLoop决定，我们可以把不同的TCP连接放到不同的线程去，也可以把一些TCP连接放到一个线程里。
 
 ### 6.4.1TCP网络编程本质论
@@ -66,7 +66,7 @@
 >> 方案10： reactors in processes : one loop per process(Nginx)   
 >> 方案11： reactors + threa pool : 最灵活的IO与CPU配置   
 
-##结语
+## 结语
 >> c++多线程服务端编程模式为：one(event) loop per thread + thread pool。   
 >> * event loop (也叫IO loop)用作IO multiplexing(多路复用)，配合non-blocking IO和定时器。
 >> * thread pool 用来做计算，具体可以是任务队列或者生产者消费者队列。

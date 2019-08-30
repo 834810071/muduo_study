@@ -5,6 +5,7 @@
 #include "TcpConnection.h"
 #include "../../base/Logging.h"
 #include <boost/bind.hpp>
+#include "../s02/Callbacks.h"
 
 using namespace muduo;
 
@@ -46,6 +47,35 @@ void TcpConnection::handleRead()
 {
     char buf[65536];
     ssize_t n = ::read(socket_->fd(), buf, sizeof buf);
-    messageCallback_(shared_from_this(), buf, n);
-    // FIXME: close connection if n == 0
+    if (n > 0)
+    {
+        messageCallback_(shared_from_this(), buf, n);
+    }
+    else if (n == 0)
+    {
+        handleClose();
+    }
+    else
+    {
+        handleError();
+    }
+
+}
+
+void TcpConnection::handleClose()
+{
+    loop_->assertInLoopThread();
+    LOG_TRACE << "TcpConnection::handleClose state = " << state_;
+    assert(state_ == kConnected);
+    // we don't close fd, leave it to dtor[析构函数], so we can find leaks easily.
+    channel_->disableAll();
+    // must be the last line
+    closeCallback_(shared_from_this());
+}
+
+void TcpConnection::handleError()
+{
+    int err = sockets::getSockError(channel_->fd());
+    LOG_ERROR << "TcpConnection::handleError [" << name_
+              << "] - SO_ERROR = " << err << " " << strerror_tl(err);
 }

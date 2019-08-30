@@ -25,6 +25,8 @@ public:
 
     Channel(EventLoop* loop, int fd);
 
+    ~Channel();
+
     void handleEvent();
     void setReadCallback(const EventCallback& cb)
     {
@@ -107,9 +109,12 @@ private:
     int revents_;   // poller返回的就绪的事件，由EventLoop/Poller设置。 返回事件   /* returned events */
     int index_;     // used by Poller  在Poller::pollfds_中的索引
 
+    bool eventHandling_;
+
     EventCallback readCallback_;
     EventCallback writeCallback_;
     EventCallback errorCallback_;
+    EventCallback closeCallback_;
 };
 
 }

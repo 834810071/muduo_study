@@ -1,10 +1,10 @@
-#Chapter08
+# Chapter08
 
 >> 1. &8.1至&8.3介绍Reactor模式的现代C++实现，包括EventLoop、Poller、Channel、TimerQueue、EventLoopThread等class。   
 >> 2. &8.4至&8.9介绍基于Reactor的单线程、非阻塞、并发TCP server网络编程，主要介绍Acceptor、Socket、TcpServer、TcpConnection、Buffer等class。  
 >> 3. &8.10至&8.13介绍one loop per thread的实现(用EventLoopThreadPool实现多线程TcpServer)，Connector和TcpClient class，还有用epoll(4)替换poll(2)作为Poller的IO multiplexing机制等。
 
-##8.0 什么都不做的EventLoop
+## 8.0 什么都不做的EventLoop
 >> 首先定义EventLoop class的基本接口：构造函数、析构函数、loop()成员函数。  
 >> one loop per thread顾名思义每个线程只能有一个EventLoop对象，因此EventLoop的构造函数会检查当前线程是否创建了其他EventLoop对象。EventLoop的构造函数会记住本对象所属的线程（threadId_）。创建EventLoop对象的线程是**IO线程**，其主要功能是运行事件循环EventLoop::loop()。EventLoop对象的生命周期和其所属的线程一样长，它不必是heap对象。  
 >> 创建了EventLoop对象的线程是**IO线程**   
@@ -53,7 +53,7 @@ TimerQueue时序图
 ## 8.3 EventLoop::runInLoop()  
 [eventfd](https://www.jianshu.com/p/2704cd87200a) 
 
-##8.4 实现TCP网络库
+## 8.4 实现TCP网络库
 $8.4介绍Acceptor class，用于accept(2)新连接。  
 $8.5介绍TcpServer，用于处理TcpConnection。  
 $8.6介绍TcpConnection断开连接。  
@@ -62,8 +62,23 @@ $8.9完善TcpConnection，处理SIGPIPE、TCP keep alive等。
 
 **Acceptor class**    
 [sockaddr与sockaddr_in](https://blog.csdn.net/will130/article/details/53326740/)  
+>> 用于accept(2)新的TCP连接，并通过回调通知使用者。它是内部类，供TcpServer使用，生命期由后者控制。
 
-##8.5 TcpServer接受新连接  
-[TcpServer接受新连接](https://github.com/834810071/muduo_study/blob/master/book_study/TcpServer%E8%B0%83%E7%94%A8%E9%A1%BA%E5%BA%8F.png "TcpServer接受新连接")
+## 8.5 TcpServer接受新连接  
+TcpServer新建连接的相关函数调用顺序：  
+![TcpServer接受新连接](https://github.com/834810071/muduo_study/blob/master/book_study/TcpServer%E8%B0%83%E7%94%A8%E9%A1%BA%E5%BA%8F.png "TcpServer接受新连接")   
+### 8.5.1 TcpServer class  
+>>TcpServer class的功能是管理accept(2)获得的TcpConnection。TcpServer是供用户直接使用的，生命期由用户控制。用户只需要设置好callback，再调用start()即可。  
+
+### 8.5.2 TcpConnection class
+>>TcpConnection class是muduo最核心也是最复杂的类。是muduo唯一默认使用shared_ptr来管理的class，也是唯一继承enable_shared_from_this的类，这源于其模糊的生命期。  
+>> TcpConnection表示“一次TCP连接”，是不可再生的，一旦连接断开，这个TcpConnection对象就没有什么用了。  
+
+## TcpConnection断开连接
+>> muduo只有一种关闭连接的方式：被动关闭。即对方先关闭连接，本地read(2)返回0，触发关闭逻辑。   
+
+主动关闭连接函数调用流程  
+![主动关闭连接函数调用流程](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%9B%BE8-5.png "主动关闭连接调用流程")  
+
 
  

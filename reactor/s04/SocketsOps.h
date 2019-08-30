@@ -10,6 +10,7 @@
 #include <endian.h>
 #include <arpa/inet.h>
 
+
 namespace muduo
 {
     namespace sockets
@@ -66,7 +67,11 @@ namespace muduo
         // 从1.2.3.4::5形式转换成struct sockaddr_in
         void fromHostPort(const char* ip, uint16_t port,
                           struct sockaddr_in* addr);
+        struct sockaddr_in getLocalAddr(int sockfd);
+        int getSockError(int sockfd);
     }
+
+
 }
 
 

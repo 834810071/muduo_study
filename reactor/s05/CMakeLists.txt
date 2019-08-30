@@ -8,11 +8,11 @@ set(s05Src
         TcpConnection.cpp
         TcpConnection.h
         TcpServer.cpp
-        TcpServer.h
-        Callbacks.h)
+        TcpServer.h)
+       # Callbacks.h)
 
 add_library(s05 ${s05Src})
-target_link_libraries(s05 s04 s03 s02 s01 s00)
+target_link_libraries(s05 s04 s02 s03  s01 s00)
 
 add_executable(s05test1 test1.cpp)
 target_link_libraries(s05test1 s05 s04 s03 s02 s01 s00 base rt pthread)

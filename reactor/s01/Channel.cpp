@@ -23,6 +23,11 @@ Channel::Channel(EventLoop* loop, int fdArg)
 
 }
 
+Channel::~Channel()
+{
+    assert(!eventHandling_);
+}
+
 void Channel::update()
 {
     loop_->updateChannel(this);
@@ -30,9 +35,19 @@ void Channel::update()
 
 void Channel::handleEvent()
 {
+    eventHandling_ = true;
     if (revents_ & POLLNVAL)    // POLLNVAL 指定的文件描述符非法
     {
         LOG_WARN << "Channel::handleEvent() POLLNVAL";
+    }
+
+    if ((revents_ & POLLHUP) && !(revents_ & POLLIN))   // 对方描述符挂起 并且 没有输入
+    {
+        LOG_WARN << "Channel::handle_event() POLLHUP";
+        if (closeCallback_)
+        {
+            closeCallback_();
+        }
     }
 
     if (revents_ & (POLLERR | POLLNVAL))    // POLLERR 指定的文件描述符发生错误

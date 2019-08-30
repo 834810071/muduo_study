@@ -8,6 +8,7 @@
 #include "SocketsOps.h"
 #include "../../base/Types.h"
 #include "../../base/Logging.h"
+#include <strings.h>
 
 using namespace muduo;
 
@@ -162,7 +163,32 @@ void sockets::bindOrDie(int sockfd, const struct sockaddr_in& addr)
     }
 }
 
+struct sockaddr_in sockets::getLocalAddr(int sockfd)
+{
+    struct sockaddr_in localaddr;
+    bzero(&localaddr, sizeof(localaddr));
+    socklen_t addlen = sizeof(localaddr);
+    if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addlen) < 0)
+    {
+        LOG_SYSERR << "sockets::getLocalAddr";
+    }
+    return localaddr;
+}
 
+int sockets::getSockError(int sockfd)
+{
+    int optval;
+    socklen_t optlen = sizeof optval;
+                                        // 获得套接字错误
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
+    {
+        return errno;
+    }
+    else
+    {
+        return optval;
+    }
+}
 
 
 
