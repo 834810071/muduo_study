@@ -28,7 +28,7 @@ Channel的主要作用如下：
 >>2. 接着我们开始注册fd_上需要监听的事件,如果是常用事件(读写等)的话，我们可以直接调用接口enable***来注册对应fd上的事件，与之对应的是disable***用来销毁特定的事件
 >>3. 再然后我们通过set***Callback来事件发生时的回调
 
-### 8.1.2 Poller class
+### 8.1.2 [Poller class](http://www.ishenping.com/ArtInfo/1928045.html)
 >> Poller class 是IO multiplexing的封装。在muduo中是个抽象基类，因为muduo支持poll(2)和epoll(4)两种IO multiplexing机制。Poller是EventLoop的间接成员，只供其owner EventLoop在IO线程调用，因此无须枷锁。其生命周期与EventLoop相同。Poller并不拥有Channel，Channel在析构前必须自己unregister(EventLoop::removeChannel())，避免空悬指针。   
 >> Poller供EventLoop调用的函数目前有两个，poll()和updateChannel()。   
 >> Poller数据成员：其中ChannelMap是从fd到Channel*的映射。Poller::poll()不会在每次调用poll(2)之前临时构造pollfd数组，而是把它缓存起来(pollfds_)。       
@@ -74,11 +74,14 @@ TcpServer新建连接的相关函数调用顺序：
 >>TcpConnection class是muduo最核心也是最复杂的类。是muduo唯一默认使用shared_ptr来管理的class，也是唯一继承enable_shared_from_this的类，这源于其模糊的生命期。  
 >> TcpConnection表示“一次TCP连接”，是不可再生的，一旦连接断开，这个TcpConnection对象就没有什么用了。  
 
-## TcpConnection断开连接
+## 8.6 TcpConnection断开连接
 >> muduo只有一种关闭连接的方式：被动关闭。即对方先关闭连接，本地read(2)返回0，触发关闭逻辑。   
 
 主动关闭连接函数调用流程  
-![主动关闭连接函数调用流程](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%9B%BE8-5.png "主动关闭连接调用流程")  
+![主动关闭连接函数调用流程](https://github.com/834810071/muduo_study/blob/master/book_study/%E5%9B%BE8-5.png "主动关闭连接调用流程")
+
+## 8.7 Buffer读取数据
+>> Buffer是另一个具有值语义的对象。  
 
 
  

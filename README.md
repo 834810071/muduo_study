@@ -31,4 +31,5 @@ base
        
        
 net   
->>> EventLoop
+>> 参照《Linux多线程服务端编程：使用muduo C++网络库》实现   
+>> 位置[mymuduo/rector](https://github.com/834810071/muduo_study/tree/master/reactor)
