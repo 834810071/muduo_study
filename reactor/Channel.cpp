@@ -33,7 +33,7 @@ void Channel::update()
     loop_->updateChannel(this);
 }
 
-void Channel::handleEvent()
+void Channel::handleEvent(Timestamp reveiveTime)
 {
     eventHandling_ = true;
     if (revents_ & POLLNVAL)    // POLLNVAL 指定的文件描述符非法
@@ -62,7 +62,7 @@ void Channel::handleEvent()
     {
         if (readCallback_)
         {
-            readCallback_();
+            readCallback_(reveiveTime);
         }
     }
 

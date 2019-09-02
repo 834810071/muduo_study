@@ -60,6 +60,7 @@ namespace muduo
         void listenOrDie(int sockfd);
         int accept(int sockfd, struct sockaddr_in* addr);
         void close(int sockfd);
+        void shutdownWrite(int sockfd);
 
         // 从struct sockaddr_in转换成1.2.3.4::5形式
         void toHostPort(char* buf, size_t size,
@@ -69,7 +70,7 @@ namespace muduo
                           struct sockaddr_in* addr);
         struct sockaddr_in getLocalAddr(int sockfd);
         int getSocketError(int sockfd);
-    }
+     }
 
 
 }

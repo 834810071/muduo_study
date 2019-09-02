@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <boost/bind.hpp>
 #include <sys/eventfd.h>
+#include <signal.h>
 
 using namespace muduo;
 
@@ -29,6 +30,17 @@ static int createEventfd()
     }
     return evtfd;
 }
+
+class IgnoreSigPipe
+{
+public:
+    IgnoreSigPipe()
+    {
+        ::signal(SIGPIPE, SIG_IGN); // 对 server 来说，为了不被SIGPIPE信号杀死，那就需要忽略SIGPIPE信号
+    }
+};
+
+IgnoreSigPipe initObj;
 
 // IO线程
 EventLoop::EventLoop()
@@ -73,10 +85,10 @@ void EventLoop::loop()
     while (!quit_)
     {
         activeChannels_.clear();
-        poller_->poll(kPollTimeMs, &activeChannels_);       // 这里会循环一定时间，通过唤醒wakefd_来执行doPendingFunctors();
+        pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);       // 这里会循环一定时间，通过唤醒wakefd_来执行doPendingFunctors();
         for (ChannelList::iterator it = activeChannels_.begin(); it != activeChannels_.end(); ++it)
         {
-            (*it)->handleEvent();   // 调用对应的回调函数
+            (*it)->handleEvent(pollReturnTime_);   // 调用对应的回调函数
         }
         doPendingFunctors();
     }

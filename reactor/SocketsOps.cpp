@@ -190,7 +190,14 @@ int sockets::getSocketError(int sockfd)
     }
 }
 
-
+void sockets::shutdownWrite(int sockfd)
+{
+    // 关闭sockfd的写功能，此选项将不允许sockfd进行写操作
+    if (::shutdown(sockfd, SHUT_WR) < 0)
+    {
+        LOG_SYSERR << "sockets::shutdownWrite";
+    }
+}
 
 
 

@@ -8,7 +8,10 @@
 >> 首先定义EventLoop class的基本接口：构造函数、析构函数、loop()成员函数。  
 >> one loop per thread顾名思义每个线程只能有一个EventLoop对象，因此EventLoop的构造函数会检查当前线程是否创建了其他EventLoop对象。EventLoop的构造函数会记住本对象所属的线程（threadId_）。创建EventLoop对象的线程是**IO线程**，其主要功能是运行事件循环EventLoop::loop()。EventLoop对象的生命周期和其所属的线程一样长，它不必是heap对象。  
 >> 创建了EventLoop对象的线程是**IO线程**   
-[select、poll、epoll之间的区别总结](https://www.cnblogs.com/Anker/p/3265058.html)   
+[select、poll、epoll之间的区别总结1](https://www.cnblogs.com/Anker/p/3265058.html)
+[select、poll、epoll之间的区别总结2](https://www.abcode.club/archives/346)
+[select、poll、epoll之间的区别总结3](https://langzi989.github.io/2017/10/08/Unix%E4%B8%ADSelectPollEpoll%E8%AF%A6%E8%A7%A3/)
+   
 ![poll事件类型](https://github.com/834810071/muduo_study/blob/master/book_study/poll%E4%BA%8B%E4%BB%B6%E7%B1%BB%E5%9E%8B "poll事件类型")
 
 EventLoop的主要功能如下：
@@ -70,7 +73,7 @@ TcpServer新建连接的相关函数调用顺序：
 ### 8.5.1 TcpServer class  
 >>TcpServer class的功能是管理accept(2)获得的TcpConnection。TcpServer是供用户直接使用的，生命期由用户控制。用户只需要设置好callback，再调用start()即可。  
 
-### 8.5.2 TcpConnection class
+### 8.5.2 [TcpConnection class](https://blog.csdn.net/daaikuaichuan/article/details/87822822)
 >>TcpConnection class是muduo最核心也是最复杂的类。是muduo唯一默认使用shared_ptr来管理的class，也是唯一继承enable_shared_from_this的类，这源于其模糊的生命期。  
 >> TcpConnection表示“一次TCP连接”，是不可再生的，一旦连接断开，这个TcpConnection对象就没有什么用了。  
 
@@ -83,5 +86,21 @@ TcpServer新建连接的相关函数调用顺序：
 ## 8.7 Buffer读取数据
 >> Buffer是另一个具有值语义的对象。  
 
+## 8.8 TcpConnection发送数据
+>> 截止目前，只用到了Channel的ReadCallback:
+>> * TimerQueue用它来读timerfd(2)。[计时器]    
+>> * EventLoop用它来读eventfd(2)。[唤醒]   
+>> * TcpServer/Acceptor用它来读listening socket。  
+>> * TcpConnection用它来读TCP socket。
+  
+>> 本节会动用其WriteCallback，由于muduo采用level trigger，因此只在需要时才关注writable事件，否则就会造成busy loop。   
+
+TcpConnection状态图  
+![TcpConnection状态图](https://github.com/834810071/muduo_study/blob/master/book_study/TcpConnection%E7%8A%B6%E6%80%81%E5%9B%BE.png "TcpConnection状态图")
+
+### 8.9.1 [SIGPIPE](http://senlinzhan.github.io/2017/03/02/sigpipe/)
+
+### 8.9.2 TCP No Delay 和 TCP keepalive  
+>>TCP No Delay和TCP keepalive都是常用的TCP选项，前者的作用是禁用Nagle算法，避免连续发包出现延迟，这对编写低延迟网络服务很重要。后者的作用是定期探查TCP连接是否还在。一般来说说如果有应用层心跳的话，TCP keepalive不是必须的，但是一个通用的网络库应该暴露其接口。
 
  

@@ -3,6 +3,11 @@
 //
 
 #include <strings.h>
+#include <sys/types.h>          /* See NOTES */
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+
 #include "Socket.h"
 #include "SocketsOps.h"
 
@@ -42,4 +47,16 @@ void Socket::setReuseAddr(bool on)
     int opeval = on ? 1 : 0;
     ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
             &opeval, sizeof opeval);
+}
+
+void Socket::shutdownWrite()
+{
+    sockets::shutdownWrite(sockfd_);
+}
+
+void Socket::setTcpNoDelay(bool on)
+{
+    int optval = on ? 1 : 0;
+    ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
+            &optval, sizeof optval);
 }

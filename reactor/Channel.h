@@ -7,6 +7,7 @@
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include "../base/Timestamp.h"
 
 namespace muduo
 {
@@ -22,13 +23,15 @@ class EventLoop;
 class Channel : boost::noncopyable {
 public:
     typedef boost::function<void()> EventCallback;
+    typedef boost::function<void(Timestamp)> ReadEventCallback;
 
     Channel(EventLoop* loop, int fd);
 
     ~Channel();
 
-    void handleEvent();
-    void setReadCallback(const EventCallback& cb)
+    void handleEvent(Timestamp reveiveTime);
+
+    void setReadCallback(const ReadEventCallback& cb)
     {
         readCallback_ = cb;
     }
@@ -86,6 +89,10 @@ public:
         update();
     }
 
+    bool isWriting() const
+    {
+        return events_ & kWriteEvent;
+    }
     // for Poller
     int index()
     {
@@ -116,7 +123,7 @@ private:
 
     bool eventHandling_;
 
-    EventCallback readCallback_;
+    ReadEventCallback readCallback_;
     EventCallback writeCallback_;
     EventCallback errorCallback_;
     EventCallback closeCallback_;

@@ -25,7 +25,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 {
     LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
               << " fd=" << sockfd;
-    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead, this));
+    channel_->setReadCallback(boost::bind(&TcpConnection::handleRead, this, _1));
     channel_->setWriteCallback(
             boost::bind(&TcpConnection::handleWrite, this));
     channel_->setCloseCallback(
@@ -50,13 +50,15 @@ void TcpConnection::connectEstablished()
     connectionCallback_(shared_from_this());
 }
 
-void TcpConnection::handleRead()
+void TcpConnection::handleRead(Timestamp receiveTime)
 {
-    char buf[65536];
-    ssize_t n = ::read(socket_->fd(), buf, sizeof buf);
+    //char buf[65536];
+    int savedErrno = 0;
+   // ssize_t n = ::read(socket_->fd(), buf, sizeof buf);
+    ssize_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
     if (n > 0)
     {
-        messageCallback_(shared_from_this(), buf, n);
+        messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
     }
     else if (n == 0)
     {
@@ -64,6 +66,8 @@ void TcpConnection::handleRead()
     }
     else
     {
+        errno = savedErrno;
+        LOG_SYSERR << "TcpConnection:handleRead";
         handleError();
     }
 
@@ -71,14 +75,43 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
-
+    loop_->assertInLoopThread();
+    if (channel_->isWriting())
+    {
+        ssize_t n = ::write(channel_->fd(),
+                            outputBuffer_.peek(),
+                            outputBuffer_.readableBytes());
+        if (n > 0)
+        {
+            outputBuffer_.retrieveAll();
+            if (outputBuffer_.readableBytes() == 0)
+            {
+                channel_->disableWriting(); // 停止观察writable事件
+                if (state_ == kDisconnecting)
+                {
+                    shutdownInLoop();
+                }
+            } else
+            {
+                LOG_TRACE << "I am going to write more data";
+            }
+        }
+        else
+        {
+            LOG_SYSERR << "TcpConnection::handleWrite";
+        }
+    }
+    else
+    {
+        LOG_TRACE << "Connection is down, no more writing";
+    }
 }
 
 void TcpConnection::handleClose()
 {
     loop_->assertInLoopThread();
     LOG_TRACE << "TcpConnection::handleClose state = " << state_;
-    assert(state_ == kConnected);
+    assert(state_ == kConnected || state_ == kDisconnecting);
     // we don't close fd, leave it to dtor[析构函数], so we can find leaks easily.
     channel_->disableAll();
     // must be the last line
@@ -95,11 +128,104 @@ void TcpConnection::handleError()
 void TcpConnection::connectDestroyed()
 {
     loop_->assertInLoopThread();
-    assert(state_ == kConnected);
+    assert(state_ == kConnected || state_ == kDisconnecting);
     setState(kDisconnected);
     channel_->disableAll();
     connectionCallback_(shared_from_this());
 
     loop_->removeChannel(get_pointer(channel_));
 }
+
+
+void TcpConnection::shutdown()
+{
+    // FIXME: use compare and swap
+    if (state_ == kConnected)
+    {
+        setState(kDisconnecting);
+        // FIXME: shared_from_this()?
+        loop_->runInLoop(boost::bind(&TcpConnection::shutdownInLoop, this));
+    }
+}
+
+void TcpConnection::setTcpNoDelay(bool on)
+{
+   socket_->setTcpNoDelay(on);
+}
+
+void TcpConnection::shutdownInLoop()
+{
+    loop_->assertInLoopThread();
+    if (!channel_->isWriting())
+    {
+        // we are not writing
+        socket_->shutdownWrite();
+    }
+}
+
+void TcpConnection::send(const std::string& message)
+{
+    if (state_ == kConnected)
+    {
+        if (loop_->isInLoopThread())
+        {
+            sendInLoop(message);
+        }
+        else
+        {
+            loop_->runInLoop(boost::bind(&TcpConnection::sendInLoop, this, message));
+        }
+    }
+}
+
+void TcpConnection::sendInLoop(const std::string& message)
+{
+    loop_->assertInLoopThread();
+    ssize_t nwrote = 0;
+    // if no thing in output queue, try writing directly
+    if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
+    {
+        nwrote = ::write(channel_->fd(), message.data(), message.size());
+        if (nwrote >= 0)
+        {
+            if (implicit_cast<size_t >(nwrote) < message.size())
+            {
+                LOG_TRACE << "I am going to write more data";
+            }
+        }
+        else
+        {
+            nwrote = 0;
+            if (errno != EWOULDBLOCK)   // 用于非阻塞模式，不需要重新读或者写
+            {
+                LOG_SYSERR << "TcpConnection::sendInLoop";
+            }
+        }
+    }
+
+    assert(nwrote >= 0);
+    if (implicit_cast<size_t >(nwrote) < message.size())
+    {
+        outputBuffer_.append(message.data() + nwrote, message.size() - nwrote);
+        if (!channel_->isWriting())
+        {
+            channel_->enableWriting();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
