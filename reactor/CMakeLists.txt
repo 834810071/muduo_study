@@ -32,6 +32,10 @@ SET(reactor_src
         TcpServer.h
         Buffer.cpp
         Buffer.h
+        EventLoopThreadPool.cpp
+        EventLoopThreadPool.h
+        Connector.cpp
+        Connector.h
         )
 
 add_library(reactor ${reactor_src})

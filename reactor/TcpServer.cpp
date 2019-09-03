@@ -13,6 +13,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
       name_(listenAddr.toHostPort()),   // 地址：端口号
       acceptor_(new Acceptor(loop, listenAddr)),
+      threadPool_(new EventLoopThreadPool(loop_)),
       started_(false),
       nextConnId_(1)
 {
@@ -31,6 +32,7 @@ void TcpServer::start()
     if (!started_)
     {
         started_ = true;
+        threadPool_->start();
     }
 
     if (!acceptor_->listenning())
@@ -52,22 +54,36 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
              << "] - new connection [" << connName
              << "] from " << peerAddr.toHostPort();
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
+    EventLoop* ioLoop = threadPool_->getNextLoop();
     // FIXME poll with zero timeout to double confirm the new connectio
-    TcpConnectionPtr conn(new TcpConnection(loop_, connName, sockfd, localAddr, peerAddr));
+    TcpConnectionPtr conn(new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr));
     connections_[connName] = conn;
     conn->setConnectionCallback(connectionCallback_);
     conn->setMessageCallback(messageCallback_);
+    conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(
             boost::bind(&TcpServer::removeConnection, this, _1));   // 向TcpConnection注册CloseCallback，用于接收连接断开的消息。
-    conn->connectEstablished();
+    ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 {
+    loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
+}
+
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
+{
     loop_->assertInLoopThread();
-    LOG_INFO << "TcpServer::removeConnection [" << name_
+    LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
              << "] - connection " << conn->name();
     size_t n = connections_.erase(conn->name());
     assert(n == 1); (void)n;
-    loop_->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
+    EventLoop* ioloop = conn->getLoop();
+    ioloop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
+}
+
+void TcpServer::setThreadNum(int numThreads)
+{
+    assert(0 <= numThreads);
+    threadPool_->setThreadNum(numThreads);
 }

@@ -81,6 +81,11 @@ public:
         messageCallback_ = cb;
     }
 
+    void setWriteCompleteCallback(const WriteCompleteCallback& cb)
+    {
+        writeCompleteCallback_ = cb;
+    }
+
     /// Internal use only.
     void setCloseCallback(const CloseCallback& cb)
     {
@@ -117,6 +122,7 @@ private:
     InetAddress peerAddr_;
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
+    WriteCompleteCallback writeCompleteCallback_;
     CloseCallback closeCallback_;
     Buffer inputBuffer_;
     Buffer outputBuffer_;

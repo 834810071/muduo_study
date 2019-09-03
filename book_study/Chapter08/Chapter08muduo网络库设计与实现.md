@@ -103,4 +103,7 @@ TcpConnection状态图
 ### 8.9.2 TCP No Delay 和 TCP keepalive  
 >>TCP No Delay和TCP keepalive都是常用的TCP选项，前者的作用是禁用Nagle算法，避免连续发包出现延迟，这对编写低延迟网络服务很重要。后者的作用是定期探查TCP连接是否还在。一般来说说如果有应用层心跳的话，TCP keepalive不是必须的，但是一个通用的网络库应该暴露其接口。
 
+## 8.10 多线程TcpServer
+>> 多线程TcpServer自己的EventLoop只用来接受新连接，而新连接会用其他EventLoop来执行IO。
+
  

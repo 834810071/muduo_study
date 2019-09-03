@@ -87,6 +87,10 @@ void TcpConnection::handleWrite()
             if (outputBuffer_.readableBytes() == 0)
             {
                 channel_->disableWriting(); // 停止观察writable事件
+                if (writeCompleteCallback_)
+                {
+                    loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
+                }
                 if (state_ == kDisconnecting)
                 {
                     shutdownInLoop();
@@ -191,6 +195,11 @@ void TcpConnection::sendInLoop(const std::string& message)
             if (implicit_cast<size_t >(nwrote) < message.size())
             {
                 LOG_TRACE << "I am going to write more data";
+            }
+            else if (writeCompleteCallback_)
+            {
+                loop_->queueInLoop(
+                        boost::bind(writeCompleteCallback_, shared_from_this()));
             }
         }
         else
