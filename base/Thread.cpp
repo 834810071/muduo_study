@@ -97,7 +97,7 @@ namespace muduo
                 {
                     muduo::CurrentThread::t_threadName = "crashed";
                     fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
-                    fprintf(stderr, "reason: %s\s", ex.what());
+                    fprintf(stderr, "reason: %s\n", ex.what());
                     abort();
                 }
                 catch (...) // 表示捕获所有类型的异常。

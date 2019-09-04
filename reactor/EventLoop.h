@@ -46,6 +46,8 @@ public:
 
     void quit();
 
+    void cancel(TimerId timerId);
+
     // internal use only
     void wakeup();
     void updateChannel(Channel* channel);

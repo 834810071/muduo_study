@@ -210,6 +210,10 @@ void EventLoop::wakeup()
     }
 }
 
+void EventLoop::cancel(TimerId timerId)
+{
+    return timerQueue_->cancel(timerId);
+}
 
 
 

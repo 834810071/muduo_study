@@ -213,3 +213,29 @@ bool TimerQueue::insert(Timer* timer)
     assert(result.second);
     return earliestChanged;
 }
+
+void TimerQueue::cancel(TimerId timerId)
+{
+    loop_->runInLoop(
+            boost::bind(&TimerQueue::cancelInLoop, this, timerId));
+}
+
+void TimerQueue::cancelInLoop(muduo::TimerId timerId)
+{
+    loop_->assertInLoopThread();
+    assert(timers_.size() == activeTimers_.size());
+    ActiveTimer timer(timerId.timer_, timerId.sequence_);
+    ActiveTimerSet::iterator it = activeTimers_.find(timer);
+    if (it != activeTimers_.end())
+    {
+        size_t n = timers_.erase(Entry(it->first->expiration(), it->first));
+        assert(n == 1); (void)n;
+        delete it->first; // FIXME: no delete please
+        activeTimers_.erase(it);
+    }
+    else if (callingExpiredTimers_)
+    {
+        cancelingTimers_.insert(timer);
+    }
+    assert(timers_.size() == activeTimers_.size());
+}

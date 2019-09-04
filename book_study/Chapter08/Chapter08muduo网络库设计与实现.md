@@ -106,4 +106,7 @@ TcpConnection状态图
 ## 8.10 多线程TcpServer
 >> 多线程TcpServer自己的EventLoop只用来接受新连接，而新连接会用其他EventLoop来执行IO。
 
+## 8.11 Connector
+>> Connector只负责socket链接，不负责创建TcpConnection。
+
  
