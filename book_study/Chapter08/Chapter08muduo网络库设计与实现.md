@@ -109,4 +109,7 @@ TcpConnection状态图
 ## 8.11 Connector
 >> Connector只负责socket链接，不负责创建TcpConnection。
 
+## 8.13 epoll
+>> epoll(4)是Linux独有的高效的IO multiplexing机制，它与poll(2)的不同之处主要是在于poll(2)每次返回整个文件描述符，用户代码需要遍历数组以找到哪些文件描述符上有IO事件，而epoll_wait(2)返回的是活动fd的列表，需要遍历的数组通常会小得多。在并发链接数较大而活动连接比例不高时，epoll比poll更高效。
+
  

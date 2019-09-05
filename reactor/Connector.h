@@ -60,7 +60,7 @@ private:
     boost::scoped_ptr<Channel> channel_;
     NewConnectionCallback newConnectionCallback_;
     int retryDelayMs_;
-   // TimerId timerId_;
+    TimerId timerId_;
 };
 
 typedef boost::shared_ptr<Connector> ConnectorPtr;

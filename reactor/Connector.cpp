@@ -25,7 +25,7 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
 Connector::~Connector()
 {
     LOG_DEBUG << "dtor[" << this << "]";
-    //loop_->cancel(timerId_);
+    loop_->cancel(timerId_);
     assert(!channel_);
 }
 
@@ -47,7 +47,7 @@ void Connector::restart()
 void Connector::stop()
 {
     connect_ = false;
-    //loop_->cancel(timerId_);
+    loop_->cancel(timerId_);
 }
 
 void Connector::startInLoop()
@@ -175,7 +175,7 @@ void Connector::retry(int sockfd){
         LOG_INFO << "Connector::retry - Retry connecting to "
                  << serverAddr_.toHostPort() << " in "
                  << retryDelayMs_ << " milliseconds. ";
-       // timerId_ =
+        timerId_ =
         loop_->runAfter(retryDelayMs_/1000.0,  // FIXME: unsafe
                                    boost::bind(&Connector::startInLoop, this));
         retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
@@ -186,6 +186,7 @@ void Connector::retry(int sockfd){
     }
 }
 
+// 连接成功的话 那么需要清空该sockfd以及相关的东西
 int Connector::removeAndResetChannel(){
     channel_->disableAll();
     loop_->removeChannel(get_pointer(channel_));

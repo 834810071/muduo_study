@@ -36,6 +36,10 @@ SET(reactor_src
         EventLoopThreadPool.h
         Connector.cpp
         Connector.h
+        TcpClient.cpp
+        TcpClient.h
+        EPoller.cpp
+        EPoller.h
         )
 
 add_library(reactor ${reactor_src})

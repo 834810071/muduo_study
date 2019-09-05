@@ -17,7 +17,7 @@ class Timer;
 ///
 class TimerId : public muduo::copyable {
 public:
-     TimerId(Timer* timer, int64_t seq = 0)
+     TimerId(Timer* timer = NULL, int64_t seq = 0)
         : timer_(timer),
           sequence_(seq)
     {

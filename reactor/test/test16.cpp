@@ -9,20 +9,35 @@
 
 muduo::EventLoop* g_loop;
 
+int i = 0;
 void connectCallback(int sockfd)
 {
+    ++i;
+    printf("%d : \t", i);
     printf("connected.\n");
     g_loop->quit();
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
     muduo::EventLoop loop;
     g_loop = &loop;
+
     muduo::InetAddress addr("127.0.0.1", 9981);
-    muduo::ConnectorPtr connector(new muduo::Connector(&loop, addr));
-    connector->setNewConnectionCallback(connectCallback);
-    connector->start();
+
+    int num = 1;
+    if (argc > 1)
+    {
+        num = atoi(argv[1]);
+    }
+    vector<muduo::ConnectorPtr> vec;
+    for (int i = 0; i < num; ++i)
+    {
+        muduo::ConnectorPtr connector(new muduo::Connector(&loop, addr));
+        vec.push_back(connector);
+        vec[i]->setNewConnectionCallback(connectCallback);
+        vec[i]->start();
+    }
 
     loop.loop();
 }
