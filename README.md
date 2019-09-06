@@ -34,4 +34,4 @@ net
 >> 参照《Linux多线程服务端编程：使用muduo C++网络库》实现   
 >> 位置[mymuduo/rector](https://github.com/834810071/muduo_study/tree/master/reactor)
 
-[面试相关问题记录]()
+[面试相关问题记录](https://github.com/834810071/muduo_study/blob/master/book_study/%E9%97%AE%E9%A2%98%E8%AE%B0%E8%BD%BD/%E7%9B%B8%E5%85%B3%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98%E8%AE%B0%E8%BD%BD.md)
