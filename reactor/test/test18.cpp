@@ -47,7 +47,7 @@ void onMessage(const muduo::TcpConnectionPtr& conn,
 int main()
 {
     muduo::EventLoop loop;
-    muduo::InetAddress serverAddr("127.0.0.1", 9981);
+    muduo::InetAddress serverAddr("127.0.0.1", 8888);
     muduo::TcpClient client(&loop, serverAddr);
 
     client.setConnectionCallback(onConnection);

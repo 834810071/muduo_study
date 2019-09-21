@@ -33,3 +33,10 @@
 [net](https://github.com/834810071/muduo_study/tree/master/reactor)
 >> 参照《Linux多线程服务端编程：使用muduo C++网络库》实现
 
+[基于Muduo精简实现的Smuduo,在保留原有功能和特性(事件驱动的Reactor模式，非阻塞IO)的基础上，移除boost库依赖，大量使用C++11新特性.](https://my.oschina.net/guodingding/blog/839790)    
+
+[网站压力测试工具webbench使用简介](https://my.oschina.net/guodingding/blog/839790)
+
+[A C++ High Performance Web Server](https://github.com/linyacool/WebServer)
+
+[一个基于reactor模式的Linux/C++网络库，支持one loop per thread机制](https://github.com/wlgq2/eomaia)

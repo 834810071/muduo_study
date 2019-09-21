@@ -48,8 +48,8 @@ EventLoop::EventLoop()
     : looping_(false),
     quit_(false),
     threadId_(CurrentThread::tid()), // 记住本对象所属线程
-    //poller_(new Poller(this)),
-    poller_(new EPoller(this)),
+    poller_(new Poller(this)),
+    //poller_(new EPoller(this)),
     timerQueue_(new TimerQueue(this)),
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))

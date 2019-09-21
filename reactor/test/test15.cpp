@@ -66,12 +66,15 @@ int main(int argc, char** argv)
         line.push_back(char(i));
     }
     line += line;
-    
     for (size_t i = 0; i < 127-33; ++i)
     {
         message += line.substr(i, 72) + '\n';
     }
 
+    for (int i = 0; i < 10; ++i)
+    {
+        message += message;
+    }
     //message = "a\n";
 
     muduo::InetAddress listenAddr(9981);
