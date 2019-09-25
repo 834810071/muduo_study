@@ -17,5 +17,6 @@ ADD_SUBDIRECTORY(book_study/Chapter05)
 ADD_SUBDIRECTORY(book_study/Chapter06)
 ADD_SUBDIRECTORY(book_study/Chapter07)
 ADD_SUBDIRECTORY(book_study/Chapter08)
+ADD_SUBDIRECTORY(book_study/问题记载)
 
 add_executable(mymuduo main.cpp)

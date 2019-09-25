@@ -48,11 +48,11 @@ public:
 
     void restart(Timestamp now);
 private:
-    const TimerCallback callback_;
-    Timestamp expiration_;
-    const double interval_;
-    const bool repeat_;
-    const int64_t sequence_;
+    const TimerCallback callback_;  // 超时回调函数
+    Timestamp expiration_;          // 超时时间
+    const double interval_;         // 超时时间间隔
+    const bool repeat_;             // 定时器是否重复
+    const int64_t sequence_;        // 定时器的序列号 区分地址相同的先后两个Timer对象
 
     static AtomicInt64 s_numCreated_;
 };

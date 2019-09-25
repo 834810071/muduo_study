@@ -62,7 +62,7 @@ private:
 
     // for cancel()
     bool callingExpiredTimers_; /* atomic */
-    ActiveTimerSet activeTimers_;
+    ActiveTimerSet activeTimers_;   // 保存的是目前有效的Timer指针，并满足timers_.size() == activeTimers_.size()
     ActiveTimerSet cancelingTimers_;
 };
 
