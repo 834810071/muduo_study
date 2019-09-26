@@ -40,3 +40,5 @@
 [A C++ High Performance Web Server](https://github.com/linyacool/WebServer)
 
 [一个基于reactor模式的Linux/C++网络库，支持one loop per thread机制](https://github.com/wlgq2/eomaia)
+
+[后台开发基础知识+Linux下的简易web服务器，实现web端用户注册，登录功能](https://github.com/qinguoyi/)
