@@ -31,7 +31,7 @@ void Acceptor::handleRead()
 {
     loop_->assertInLoopThread();
     InetAddress peerAddr(0);
-    int connfd = acceptSocket_.accept(&peerAddr);
+    int connfd = acceptSocket_.accept(&peerAddr);   // 允许连接
     if (connfd >= 0)
     {
         if (newConnectionCallback_)

@@ -16,6 +16,7 @@ EventLoopThread::EventLoopThread()
 {
 
 }
+
 EventLoopThread::~EventLoopThread()
 {
     exiting_ = true;

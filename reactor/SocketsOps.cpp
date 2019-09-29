@@ -61,7 +61,7 @@ int sockets::createNonblockingOrDie()
 
     setNonBlockAndCloseOnExec(sockfd);
 #else
-    int sockfd = ::socket(AF_INET,
+    int sockfd = socket(AF_INET,
             SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC,
             IPPROTO_TCP);
     if (sockfd < 0)

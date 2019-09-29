@@ -14,6 +14,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop* loop)
 {
 
 }
+
 EventLoopThreadPool::~EventLoopThreadPool()
 {
     // Don't delete loop, it's stack variable
@@ -41,7 +42,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
 
     if (!loops_.empty())
     {
-        // round-robin
+        // round-robin  伦叫
         loop = loops_[next_];
         ++next_;
         if (static_cast<size_t>(next_) >= loops_.size())

@@ -18,7 +18,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
     : loop_(CHECK_NOTNULL(loop)),
       name_(nameArg),
       state_(kConnecting),
-      socket_(new Socket(sockfd)),
+      socket_(new Socket(sockfd)),  // connfd
       channel_(new Channel(loop, sockfd)),
       localAddr_(localAddr),
       peerAddr_(peerAddr)
