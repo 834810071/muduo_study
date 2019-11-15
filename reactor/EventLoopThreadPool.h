@@ -33,7 +33,7 @@ private:
     bool started_;
     int numThreads_;
     int next_;  // always in loop thread
-    boost::ptr_vector<EventLoopThread> threads_;
+    boost::ptr_vector<EventLoopThread> threads_;    // boost::ptr_vector 独占它所包含的对象
     std::vector<EventLoop*> loops_;
 };
 

@@ -39,6 +39,7 @@ EventLoop* EventLoopThread::startLoop()
     return loop_;
 }
 
+// 绑定到 thread_ 中
 void EventLoopThread::threadFunc()
 {
     EventLoop loop;

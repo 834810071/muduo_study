@@ -44,3 +44,5 @@
 [后台开发基础知识+Linux下的简易web服务器，实现web端用户注册，登录功能](https://github.com/qinguoyi/)    
 
 [A Simple Muduo Source Code ,Remove The Relay of boost &  Separate Into Small Modules.](https://github.com/ailumiyana/SimpleMuduo)
+
+[C语言版muduo，对muduo的部分设计做了优化](https://github.com/shonm520/mu_event)

@@ -54,7 +54,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
              << "] - new connection [" << connName
              << "] from " << peerAddr.toHostPort();
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
-    EventLoop* ioLoop = threadPool_->getNextLoop();
+    EventLoop* ioLoop = threadPool_->getNextLoop();         // 取得EventLoop.
     // FIXME poll with zero timeout to double confirm the new connectio
     TcpConnectionPtr conn(new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr));
     connections_[connName] = conn;
@@ -76,10 +76,10 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
     loop_->assertInLoopThread();
     LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
              << "] - connection " << conn->name();
-    size_t n = connections_.erase(conn->name());
+    size_t n = connections_.erase(conn->name());    // 解除TcpServer对connection的使用
     assert(n == 1); (void)n;
     EventLoop* ioloop = conn->getLoop();
-    ioloop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
+    ioloop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));   // 回到connection自己的loop中销毁连接connectDestroyed()
 }
 
 void TcpServer::setThreadNum(int numThreads)
