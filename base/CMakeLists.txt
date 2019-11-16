@@ -42,7 +42,9 @@ set(base_src
         FileUtil.cc
         FileUtil.h
         ProcessInfo.cc
-        ProcessInfo.h)
+        ProcessInfo.h
+        AsyncLogging.cpp
+        AsyncLogging.h)
 
 add_library(base ${base_src})
 target_link_libraries(base pthread)

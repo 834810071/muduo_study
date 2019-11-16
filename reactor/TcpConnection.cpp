@@ -40,6 +40,17 @@ TcpConnection::~TcpConnection()
               << " fd=" << channel_->fd();
 }
 
+
+/*
+ * 1.创建服务器(TcpServer)时，创建Acceptor，设置接收到客户端请求后执行的回调函数
+ * 2.Acceptor创建监听套接字，将监听套接字绑定到一个Channel中，设置可读回调函数为Acceptor的handleRead
+ * 3.服务器启动，调用Acceptor的listen函数创建监听套接字，同时将Channel添加到Poller中
+ * 4.有客户端请求连接，监听套接字可读，Channel被激活，调用可读回调函数(handleRead)
+ * 5.回调函数接收客户端请求，获得客户端套接字和地址，调用TcpServer提供的回调函数(newConnection)
+ * 6.TcpServer的回调函数中创建TcpConnection代表这个tcp连接，设置tcp连接各种回调函数(由用户提供给TcpServer)
+ * 7.TcpServer让tcp连接所属线程调用TcpConnection的connectEstablished
+ * 8.connectEstablished开启对客户端套接字的Channel的可读监听，然后调用用户提供的回调函数
+ */
 void TcpConnection::connectEstablished()
 {
     loop_->assertInLoopThread();
