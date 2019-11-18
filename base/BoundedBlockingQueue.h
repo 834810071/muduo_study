@@ -46,7 +46,7 @@ namespace muduo
                 notFull_.wait();
             }
             assert(!queue_.full());
-            queue_.push_back(std::move(x));
+            queue_.push_back(std::move(X));
             notEmpty_.notify();
         }
 
