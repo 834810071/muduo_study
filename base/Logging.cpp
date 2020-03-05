@@ -111,7 +111,9 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const muduo::Logger::SourceFi
 {
     formatTime();   // 格式化时间 写入LogStream中
     CurrentThread::tid();   // 缓存当前线程id
+    stream_ << " ";
     stream_ << T(CurrentThread::tidString(), CurrentThread::tidStringLength()); // 格式化线程tid字符串
+    stream_ << " ";
     stream_ << T(LogLevelName[level], 6);   // 格式化级别，对应成字符串，先输出到缓冲区
     // 如果有错误，写入错误信息
     if (savedErrno != 0)
@@ -144,21 +146,22 @@ void Logger::Impl::formatTime()
         assert(len == 17); (void)len;
     }
 
-    if (g_logTimeZone.valid())
-    {
-        Fmt us(".%06d", microseconds);
-        //printf("%s\n", us.data());
-        //assert(us.length() == 8);
-        assert(us.length() == 7);
-       // printf("%d\n", us.length());
-        stream_ << T(t_time, 17) << T(us.data(), 7);
-    }
-    else
-    {
-        Fmt us(".%06dZ ", microseconds);
-        assert(us.length() == 9);
-        stream_ << T(t_time, 17) << T(us.data(), 9);
-    }
+    stream_ << T(t_time, 17);
+//    if (g_logTimeZone.valid())
+//    {
+//        Fmt us(".%06d", microseconds);
+//        //printf("%s\n", us.data());
+//        //assert(us.length() == 8);
+//        assert(us.length() == 7);
+//       // printf("%d\n", us.length());
+//        stream_ << T(t_time, 17) << T(us.data(), 7);
+//    }
+//    else
+//    {
+//        Fmt us(".%06dZ ", microseconds);
+//        assert(us.length() == 9);
+//        stream_ << T(t_time, 17) << T(us.data(), 9);
+//    }
 }
 
 // 将名字行输进缓冲区

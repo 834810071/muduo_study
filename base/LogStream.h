@@ -149,6 +149,7 @@ namespace muduo
             return *this;
         }
         self& operator << (double);
+        self& operator << (long double);
 
         self& operator << (char v)
         {

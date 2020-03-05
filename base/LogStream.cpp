@@ -327,6 +327,14 @@ LogStream& LogStream::operator<<(double v)
     return *this;
 }
 
+LogStream& LogStream::operator<<(long double v) {
+    if (buffer().avail() >= kMaxNumericSize) {
+        int len = snprintf(buffer_.current(), kMaxNumericSize, "%.12Lg", v);
+        buffer_.add(len);
+    }
+    return *this;
+}
+
 template<typename T>
 Fmt::Fmt(const char *fmt, T val)
 {

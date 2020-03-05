@@ -161,6 +161,7 @@ namespace muduo
     #define LOG_FATAL muduo::Logger(__FILE__, __LINE__, muduo::Logger::FATAL).stream()
     #define LOG_SYSERR muduo::Logger(__FILE__, __LINE__, false).stream()
     #define LOG_SYSFATAL muduo::Logger(__FILE__, __LINE__, true).stream()
+    #define LOG muduo::Logger(__FILE__, __LINE__).stream()
 
     const char* strerror_tl(int savedErrno);
 
