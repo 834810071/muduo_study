@@ -176,7 +176,7 @@ void TimerQueue::addTimerInLoop(Timer* timer)
 
     if (earlisestChanged)   // 如果插入在开头，那么需要重置timerfd_
     {
-        detail::resetTimerfd(timerfd_, timer->expiration());
+        detail::resetTimerfd(timerfd_, timer->expiration());    // 重新启动定时器
     }
 }
 

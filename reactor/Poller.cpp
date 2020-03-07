@@ -106,7 +106,7 @@ void Poller::removeChannel(Channel* channel)
     assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     const struct pollfd& pfd = pollfds_[idx]; (void)pfd;
 
-    assert(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());
+    assert(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());  // 跟updateChannel函数对应
     size_t n = channels_.erase(channel->fd());
     assert(n == 1); (void)n;
     if (implicit_cast<size_t >(idx) == pollfds_.size()-1)

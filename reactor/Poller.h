@@ -53,7 +53,7 @@ private:
 
     EventLoop* ownerLoop_;
     PollFdList pollfds_;
-    ChannelMap channels_;
+    ChannelMap channels_;   // fd 到 Channel 的映射
 };
 
 }

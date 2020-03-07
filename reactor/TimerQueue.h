@@ -39,10 +39,10 @@ public:
 
 
 private:
-    typedef std::pair<Timestamp, Timer*> Entry;
-    typedef std::set<Entry> TimerList;
-    typedef std::pair<Timer*, int64_t> ActiveTimer;
-    typedef std::set<ActiveTimer> ActiveTimerSet;
+    typedef std::pair<Timestamp, Timer*> Entry;     // 到期时间, Timer
+    typedef std::set<Entry> TimerList;              // 先按照first比较，如果first相同，再按照second比较
+    typedef std::pair<Timer*, int64_t> ActiveTimer; // Timer , Timer->sequence_
+    typedef std::set<ActiveTimer> ActiveTimerSet;   // 先按照first比较，如果first相同，再按照second比较
 
     void addTimerInLoop(Timer* timer);
     void cancelInLoop(TimerId timerId);

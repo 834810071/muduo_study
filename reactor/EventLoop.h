@@ -83,9 +83,9 @@ private:
     bool looping_;                  // atomic
     bool quit_;                     // atomic
     bool callingPendingFunctors_;   // atomic
-    const pid_t threadId_;     // 创建进程时经常会用到进程号的类型定义:pid_t int类型
+    const pid_t threadId_;          // 记录本对象所属的线程
     Timestamp pollReturnTime_;
-    boost::scoped_ptr<Poller> poller_;
+    boost::scoped_ptr<Poller> poller_;  // 栈上管理对象，自动销毁，不能拷贝, 间接持有
     //boost::scoped_ptr<EPoller> poller_;
     boost::scoped_ptr<TimerQueue> timerQueue_;
     int wakeupFd_;

@@ -18,8 +18,8 @@
 
 using namespace muduo;
 
-__thread EventLoop* t_loopInThisThread = 0;
-const int kPollTimeMs = 10000;
+__thread EventLoop* t_loopInThisThread = 0; // 每一个线程有一份独立实体，各个线程的值互不干扰
+const int kPollTimeMs = 1000000;
 
 static int createEventfd()
 {
@@ -78,7 +78,7 @@ EventLoop::~EventLoop()
 void EventLoop::loop()
 {
     assert(!looping_);
-    assertInLoopThread();
+    assertInLoopThread();   // 保证事件循环在IO线程执行
     looping_ = true;
     quit_ = false;
 
@@ -114,6 +114,7 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread()
 void EventLoop::quit()
 {
     quit_ = true;
+    // 如果在非当前IO线程调用,即创建EventLoop的线程中
     if (!isInLoopThread())
     {
         wakeup();
