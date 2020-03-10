@@ -160,6 +160,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 //    }
 //}
 
+// 只负责转发
 TimerId TimerQueue::addTimer(const TimerCallback& cb,
                  Timestamp when,
                  double interval)
@@ -169,6 +170,7 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
     return TimerId(timer, timer->sequence());
 }
 
+// 完成修改定时器列表的工作
 void TimerQueue::addTimerInLoop(Timer* timer)
 {
     loop_->assertInLoopThread();

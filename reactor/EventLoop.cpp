@@ -15,6 +15,7 @@
 #include <boost/bind.hpp>
 #include <sys/eventfd.h>
 #include <signal.h>
+#include <iostream>
 
 using namespace muduo;
 
@@ -50,7 +51,7 @@ EventLoop::EventLoop()
     threadId_(CurrentThread::tid()), // 记住本对象所属线程
     poller_(new Poller(this)),
     //poller_(new EPoller(this)),
-    timerQueue_(new TimerQueue(this)),
+    timerQueue_(new TimerQueue(this)),  // 注册定时器事件
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
@@ -158,6 +159,16 @@ void EventLoop::queueInLoop(const Functor& cb)
         MutexLockGuard lock(mutex_);
         pendingFunctors_.push_back(cb);
     }
+//    if (callingPendingFunctors_)
+//    {
+//        std::cout << "true" << std::endl;
+//        std::cout << isInLoopThread() << std::endl;
+//    }
+//    else
+//    {
+//        std::cout << "false" << std::endl;
+//        std::cout << isInLoopThread() << std::endl;
+//    }
     if (!isInLoopThread() || callingPendingFunctors_)
     {
         wakeup();   // 目前而言是针对于TimerQueue而言
@@ -188,7 +199,7 @@ void EventLoop::doPendingFunctors()
 
     for (size_t i = 0; i < functors.size(); ++i)
     {
-        functors[i](); // Functor有可能再次调用queueInLoop()
+        functors[i](); // Functor有可能再次调用queueInLoop(), 防止死锁
     }
     callingPendingFunctors_ = false;
 }

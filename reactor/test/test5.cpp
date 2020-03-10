@@ -14,7 +14,7 @@ void print()
 
 void threadFunc()
 {
-    g_loop->runAfter(10, print);
+    g_loop->runAfter(1.0, print);
 }
 
 int main()

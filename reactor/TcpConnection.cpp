@@ -130,7 +130,7 @@ void TcpConnection::handleClose()
     // we don't close fd, leave it to dtor[析构函数], so we can find leaks easily.
     channel_->disableAll();
     // must be the last line
-    closeCallback_(shared_from_this());
+    closeCallback_(shared_from_this()); // 回调绑定到 TcpServer::handleClose()
 }
 
 void TcpConnection::handleError()

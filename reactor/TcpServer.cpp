@@ -24,7 +24,16 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
 
 TcpServer::~TcpServer()
 {
+    loop_->assertInLoopThread();
+    LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
+    for (auto& item : connections_)
+    {
+        TcpConnectionPtr conn(item.second);
+        item.second.reset();
+        conn->getLoop()->runInLoop(
+                std::bind(&TcpConnection::connectDestroyed, conn));
+    }
 }
 
 void TcpServer::start()
@@ -56,8 +65,8 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
     EventLoop* ioLoop = threadPool_->getNextLoop();         // 取得EventLoop.
     // FIXME poll with zero timeout to double confirm the new connectio
-    TcpConnectionPtr conn(new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr));
-    connections_[connName] = conn;
+    TcpConnectionPtr conn(new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr));    // 创建TcpConnection对象conn
+    connections_[connName] = conn;  // 加入ConnectionMap
     conn->setConnectionCallback(connectionCallback_);
     conn->setMessageCallback(messageCallback_);
     conn->setWriteCompleteCallback(writeCompleteCallback_);
@@ -76,7 +85,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
     loop_->assertInLoopThread();
     LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
              << "] - connection " << conn->name();
-    size_t n = connections_.erase(conn->name());    // 解除TcpServer对connection的使用
+    size_t n = connections_.erase(conn->name());    // 解除TcpServer对connection的使用, 引用计数降为1
     assert(n == 1); (void)n;
     EventLoop* ioloop = conn->getLoop();
     ioloop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));   // 回到connection自己的loop中销毁连接connectDestroyed()

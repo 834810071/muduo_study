@@ -26,7 +26,7 @@ public:
     typedef boost::function<void(int sockfd,
             const InetAddress&)> NewConnectionCallback;
 
-    Acceptor(EventLoop* loop, const InetAddress& listenAddr);
+    Acceptor(EventLoop* loop, const InetAddress& listenAddr);   // socket、bind
 
     void setNewConnectionCallback(const NewConnectionCallback& cb)
     {
@@ -38,12 +38,12 @@ public:
         return listenning_;
     }
 
-    void listen();
+    void listen();  // 执行创建TCP服务端的传统步骤, listen
 private:
     void handleRead();
 
     EventLoop* loop_;
-    Socket acceptSocket_;
+    Socket acceptSocket_;   // RAII handle, 监听socket
     Channel acceptChannel_;
     NewConnectionCallback newConnectionCallback_;
     bool listenning_;

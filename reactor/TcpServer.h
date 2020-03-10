@@ -71,9 +71,9 @@ private:
 
     EventLoop* loop_;   // the acceptor loop
     const std::string name_;
-    boost::scoped_ptr<Acceptor> acceptor_;  // avoid revealing Acceptor
+    boost::scoped_ptr<Acceptor> acceptor_;  // avoid revealing Acceptor 用来获取新的连接
     boost::scoped_ptr<EventLoopThreadPool> threadPool_;
-    ConnectionCallback connectionCallback_;
+    ConnectionCallback connectionCallback_; // 保存回调函数
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
     bool started_;

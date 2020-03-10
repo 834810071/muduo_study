@@ -8,6 +8,7 @@
 #include "../InetAddress.h"
 #include "../EventLoop.h"
 #include "../TcpServer.h"
+#include "../../base/Logging.h"
 
 using namespace std;
 using namespace muduo;
@@ -28,11 +29,13 @@ void onConnection(const TcpConnectionPtr& conn)
 }
 
 void onMessage(const TcpConnectionPtr& conn,
-               const char* data,
-               ssize_t len)
+               //const char* data,
+               Buffer* data,
+               //ssize_t len
+               Timestamp timestamp)
 {
     printf("onMessage(): received %zd bytes from connection [%s]\n",
-           len, conn->name().c_str());
+           data->readableBytes(), conn->name().c_str());
 }
 
 int main()
