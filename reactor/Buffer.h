@@ -8,7 +8,9 @@
 #include <vector>
 #include <unistd.h>
 #include <assert.h>
+#include <string.h>
 #include <string>
+#include <algorithm>
 #include "../base/copyable.h"
 
 namespace muduo
@@ -80,6 +82,19 @@ public:
         return str;
     }
 
+    std::string retrieveAsString(size_t len)
+    {
+        assert(len <= readableBytes());
+        std::string result(peek(), len);
+        retrieve(len);
+        return result;
+    }
+
+    std::string retrieveAllAsString()
+    {
+        return retrieveAsString(readableBytes());
+    }
+
     void append(const std::string& str)
     {
         append(str.data(), str.length());
@@ -141,6 +156,43 @@ public:
     /// @return result of read(2), @c errno is saved
     ssize_t readFd(int fd, int* savedErrno);
 
+    const char* findCRLF() const
+    {
+        // FIXME: replace with memmem()?
+        const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
+        return crlf == beginWrite() ? NULL : crlf;
+    }
+
+    const char* findCRLF(const char* start) const
+    {
+        assert(peek() <= start);
+        assert(start <= beginWrite());
+        // FIXME: replace with memmem()?
+        const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF+2);
+        return crlf == beginWrite() ? NULL : crlf;
+    }
+
+    const char* findEOL() const
+    {
+        const void* eol = memchr(peek(), '\n', readableBytes());
+        return static_cast<const char*>(eol);
+    }
+
+    const char* findEOL(const char* start) const
+    {
+        assert(peek() <= start);
+        assert(start <= beginWrite());
+        const void* eol = memchr(start, '\n', beginWrite() - start);
+        return static_cast<const char*>(eol);
+    }
+
+    void retrieveUntil(const char* end)
+    {
+        assert(peek() <= end);
+        assert(end <= beginWrite());
+        retrieve(end - peek());
+    }
+
 private:
     char* begin()
     {
@@ -176,6 +228,8 @@ private:
     std::vector<char> buffer_;
     size_t readerIndex_;
     size_t writerIndex_;
+
+    static const char kCRLF[];
 };
 
 }

@@ -25,7 +25,8 @@ using namespace muduo;
 // 表示一个32位的IPv4地址
 static const in_addr_t kInaddrAny = INADDR_ANY;
 
-BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in));
+//BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in));
+BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in6));
 
 InetAddress::InetAddress(uint16_t port)
 {
@@ -48,6 +49,14 @@ std::string InetAddress::toHostPort() const
     sockets::toHostPort(buf, sizeof buf, addr_);
     return buf;
 }
+
+std::string InetAddress::toIpPort() const
+{
+    char buf[64] = "";
+    sockets::toIpPort(buf, sizeof buf, getSockAddr());
+    return buf;
+}
+
 
 
 

@@ -53,7 +53,7 @@ int main()
     client.setConnectionCallback(onConnection);
     client.setMessageCallback(onMessage);
     client.enableRetry();
-    client.connect();
+    client.connect();   // test16 测试Connector
     loop.loop();
 
     return 0;

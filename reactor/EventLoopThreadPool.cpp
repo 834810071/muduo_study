@@ -3,6 +3,7 @@
 //
 
 #include "EventLoopThreadPool.h"
+#include "../base/Logging.h"
 
 using namespace muduo;
 
@@ -45,6 +46,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
         // round-robin  伦叫
         loop = loops_[next_];
         ++next_;
+        //LOG_INFO << next_;
         if (static_cast<size_t>(next_) >= loops_.size())
         {
             next_ = 0;

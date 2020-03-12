@@ -97,7 +97,7 @@ void TcpClient::stop()
 
 bool TcpClient::retry() const
 {
-
+    return retry_;
 }
 
 void TcpClient::newConnection(int sockfd)

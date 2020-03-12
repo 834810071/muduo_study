@@ -259,7 +259,7 @@ void TimerQueue::cancelInLoop(muduo::TimerId timerId)
         delete it->first; // FIXME: no delete please
         activeTimers_.erase(it);
     }
-    else if (callingExpiredTimers_)
+    else if (callingExpiredTimers_) // 如果是自取消，那么此时肯定是已经不在timers_和activeTimers_这两个容器中
     {
         cancelingTimers_.insert(timer);
     }

@@ -9,10 +9,12 @@
 
 using namespace muduo;
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr, const string& nameArg, Option option)
     : loop_(loop),
-      name_(listenAddr.toHostPort()),   // 地址：端口号
-      acceptor_(new Acceptor(loop, listenAddr)),
+      ipPort_(listenAddr.toIpPort()),
+      // name_(listenAddr.toHostPort()),   // 地址：端口号\
+      name_(nameArg),
+      acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
       threadPool_(new EventLoopThreadPool(loop_)),
       started_(false),
       nextConnId_(1)
@@ -20,6 +22,20 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
     acceptor_->setNewConnectionCallback(
             boost::bind(&TcpServer::newConnection, this, _1, _2)
             );
+}
+
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
+        : loop_(loop),
+          ipPort_(listenAddr.toIpPort()),
+          name_(listenAddr.toHostPort()),   // 地址：端口号
+          acceptor_(new Acceptor(loop, listenAddr)),
+          threadPool_(new EventLoopThreadPool(loop_)),
+          started_(false),
+          nextConnId_(1)
+{
+    acceptor_->setNewConnectionCallback(
+            boost::bind(&TcpServer::newConnection, this, _1, _2)
+    );
 }
 
 TcpServer::~TcpServer()
@@ -55,7 +71,8 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
     loop_->assertInLoopThread();
     char buf[32];
-    snprintf(buf, sizeof buf, "#%d", nextConnId_);
+    //snprintf(buf, sizeof buf, "#%d", nextConnId_);
+    snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
     ++nextConnId_;
     std::string connName = name_ + buf;
 
@@ -85,7 +102,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
     loop_->assertInLoopThread();
     LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
              << "] - connection " << conn->name();
-    size_t n = connections_.erase(conn->name());    // 解除TcpServer对connection的使用, 引用计数降为1
+    size_t n = connections_.erase(conn->name());    // 解除TcpServer对connection的使用, 引用计数降为1 ????
     assert(n == 1); (void)n;
     EventLoop* ioloop = conn->getLoop();
     ioloop->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));   // 回到connection自己的loop中销毁连接connectDestroyed()

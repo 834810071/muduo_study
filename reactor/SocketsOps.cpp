@@ -14,18 +14,18 @@ using namespace muduo;
 
 namespace
 {
-    typedef struct sockaddr SA;
-
-    const SA* sockaddr_cast(const struct sockaddr_in* addr)
-    {
-        //return static_cast<const SA*>(implicit_cast<const void*>(addr));
-        return static_cast<const SA*>(reinterpret_cast<const void*>(addr));
-    }
-
-    SA* sockaddr_cast(struct sockaddr_in* addr)
-    {
-        return static_cast<SA*>(reinterpret_cast<void*>(addr));
-    }
+//    typedef struct sockaddr SA;
+//
+//    const SA* sockaddr_cast(const struct sockaddr_in* addr)
+//    {
+//        //return static_cast<const SA*>(implicit_cast<const void*>(addr));
+//        return static_cast<const SA*>(reinterpret_cast<const void*>(addr));
+//    }
+//
+//    SA* sockaddr_cast(struct sockaddr_in* addr)
+//    {
+//        return static_cast<SA*>(reinterpret_cast<void*>(addr));
+//    }
 
     void setNonBlockAndCloseExec(int sockfd)
     {
@@ -48,6 +48,32 @@ namespace
         ret = ::fcntl(sockfd, F_SETFD, flags);
     }
 }
+
+const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in6* addr)
+{
+    return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
+}
+
+struct sockaddr* sockets::sockaddr_cast(struct sockaddr_in6* addr)
+{
+    return static_cast<struct sockaddr*>(implicit_cast<void*>(addr));
+}
+
+const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in* addr)
+{
+    return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
+}
+
+const struct sockaddr_in* sockets::sockaddr_in_cast(const struct sockaddr* addr)
+{
+    return static_cast<const struct sockaddr_in*>(implicit_cast<const void*>(addr));
+}
+
+const struct sockaddr_in6* sockets::sockaddr_in6_cast(const struct sockaddr* addr)
+{
+    return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
+}
+
 
 int sockets::createNonblockingOrDie()
 {
@@ -81,15 +107,15 @@ void sockets::listenOrDie(int sockfd)
     }
 }
 
-int sockets::accept(int sockfd, struct sockaddr_in *addr)
+int sockets::accept(int sockfd, struct sockaddr_in6 *addr)
 {
     socklen_t addrlen = sizeof *addr;
-#if VALGRIND
+#if VALGRIND || defined (NO_ACCEPT4)
     int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
-    setNonBlockAndCloseOnExec(sockfd);
+  setNonBlockAndCloseOnExec(connfd);
 #else
     int connfd = ::accept4(sockfd, sockaddr_cast(addr),
-            &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+                           &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
 #endif
     if (connfd < 0)
     {
@@ -163,9 +189,9 @@ void sockets::bindOrDie(int sockfd, const struct sockaddr_in& addr)
     }
 }
 
-struct sockaddr_in sockets::getLocalAddr(int sockfd)
+struct sockaddr_in6 sockets::getLocalAddr(int sockfd)
 {
-    struct sockaddr_in localaddr;
+    struct sockaddr_in6 localaddr;
     bzero(&localaddr, sizeof(localaddr));
     socklen_t addlen = sizeof(localaddr);
     if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addlen) < 0)
@@ -206,15 +232,33 @@ int sockets::connect(int sockfd, const struct sockaddr_in& addr)
 
 bool sockets::isSelfConnect(int sockfd)
 {
-    struct sockaddr_in localaddr = getLocalAddr(sockfd);
-    struct sockaddr_in peeraddr = getPeerAddr(sockfd);
-    return localaddr.sin_port == peeraddr.sin_port
-           && localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
+    struct sockaddr_in6 localaddr = getLocalAddr(sockfd);
+    struct sockaddr_in6 peeraddr = getPeerAddr(sockfd);
+    if (localaddr.sin6_family == AF_INET)
+    {
+        const struct sockaddr_in* laddr4 = reinterpret_cast<struct sockaddr_in*>(&localaddr);
+        const struct sockaddr_in* raddr4 = reinterpret_cast<struct sockaddr_in*>(&peeraddr);
+        return laddr4->sin_port == raddr4->sin_port
+               && laddr4->sin_addr.s_addr == raddr4->sin_addr.s_addr;
+    }
+    else if (localaddr.sin6_family == AF_INET6)
+    {
+        return localaddr.sin6_port == peeraddr.sin6_port
+               && memcmp(&localaddr.sin6_addr, &peeraddr.sin6_addr, sizeof localaddr.sin6_addr) == 0;
+    }
+    else
+    {
+        return false;
+    }
+//    struct sockaddr_in6 localaddr = getLocalAddr(sockfd);
+//    struct sockaddr_in6 peeraddr = getPeerAddr(sockfd);
+//    return localaddr.sin_port == peeraddr.sin_port
+//           && localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
 }
 
-struct sockaddr_in sockets::getPeerAddr(int sockfd)
+struct sockaddr_in6 sockets::getPeerAddr(int sockfd)
 {
-    struct sockaddr_in peeraddr;
+    struct sockaddr_in6 peeraddr;
     bzero(&peeraddr, sizeof peeraddr);
     socklen_t addrlen = sizeof(peeraddr);
     if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0)
@@ -225,6 +269,39 @@ struct sockaddr_in sockets::getPeerAddr(int sockfd)
 }
 
 
+void sockets::toIpPort(char* buf, size_t size,
+                       const struct sockaddr* addr)
+{
+    toIp(buf, size, addr);
+    size_t end = ::strlen(buf);
+    const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
+    uint16_t port = sockets::networkToHost16(addr4->sin_port);
+    assert(size > end);
+    snprintf(buf+end, size-end, ":%u", port);
+}
+
+
+void sockets::toIp(char* buf, size_t size,
+                   const struct sockaddr* addr)
+{
+    if (addr->sa_family == AF_INET)
+    {
+        assert(size >= INET_ADDRSTRLEN);
+        const struct sockaddr_in* addr4 = sockaddr_in_cast(addr);
+        ::inet_ntop(AF_INET, &addr4->sin_addr, buf, static_cast<socklen_t>(size));
+    }
+    else if (addr->sa_family == AF_INET6)
+    {
+        assert(size >= INET6_ADDRSTRLEN);
+        const struct sockaddr_in6* addr6 = sockaddr_in6_cast(addr);
+        ::inet_ntop(AF_INET6, &addr6->sin6_addr, buf, static_cast<socklen_t>(size));
+    }
+}
+
+ssize_t sockets::write(int sockfd, const void *buf, size_t count)
+{
+    return ::write(sockfd, buf, count);
+}
 
 
 

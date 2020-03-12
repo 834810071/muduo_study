@@ -2,14 +2,6 @@
 // Created by jxq on 19-9-2.
 //
 
-//
-// Created by jxq on 19-9-1.
-//
-
-//
-// Created by jxq on 19-8-29.
-//
-
 #include <iostream>
 #include <sys/types.h>
 #include <unistd.h>

@@ -65,8 +65,8 @@ void Connector::startInLoop()
 }
 
 void Connector::connect(){
-    int sockfd = sockets::createNonblockingOrDie();
-    int ret = sockets::connect(sockfd, serverAddr_.getSockAddrInet());
+    int sockfd = sockets::createNonblockingOrDie(); // socket
+    int ret = sockets::connect(sockfd, serverAddr_.getSockAddrInet());  // connect
     int savedErrno = (ret == 0) ? 0 : errno;
     switch (savedErrno)
     {
@@ -167,8 +167,9 @@ void Connector::handleError(){
     retry(sockfd);
 }
 
+// 关闭重连
 void Connector::retry(int sockfd){
-    sockets::close(sockfd);
+    sockets::close(sockfd);          // close
     setState(kDisconnected);
     if (connect_)
     {

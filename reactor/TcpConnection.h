@@ -8,6 +8,7 @@
 #include <boost/core/noncopyable.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/any.hpp>
 #include "InetAddress.h"
 #include "EventLoop.h"
 #include "Socket.h"
@@ -67,6 +68,7 @@ public:
     //void send(const void* message, size_t len);
     // Thread safe.
     void send(const std::string& message);
+    void send(Buffer* buf);
     // Thread safe.
     void shutdown();
     void setTcpNoDelay(bool on);
@@ -86,6 +88,9 @@ public:
         writeCompleteCallback_ = cb;
     }
 
+    void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
+    { highWaterMarkCallback_ = cb; highWaterMark_ = highWaterMark; }
+
     /// Internal use only.
     void setCloseCallback(const CloseCallback& cb)
     {
@@ -96,6 +101,15 @@ public:
     void connectEstablished();   // should be called only once
     // called when TcpServer has removed me from its map
     void connectDestroyed();  // should be called only once
+
+    void setContext(const boost::any& context)
+    { context_ = context; }
+
+    const boost::any& getContext() const
+    { return context_; }
+
+    boost::any* getMutableContext()
+    { return &context_; }
 
 private:
     enum StateE {kConnecting, kConnected, kDisconnecting, kDisconnected};
@@ -110,6 +124,7 @@ private:
     void handleWrite();
     void handleClose();
     void sendInLoop(const std::string& message);
+    void sendInLoop(const void* message, size_t len);
     void shutdownInLoop();
 
     EventLoop* loop_;
@@ -123,9 +138,12 @@ private:
     ConnectionCallback connectionCallback_;
     MessageCallback messageCallback_;
     WriteCompleteCallback writeCompleteCallback_;
+    HighWaterMarkCallback highWaterMarkCallback_;
     CloseCallback closeCallback_;
+    size_t highWaterMark_;
     Buffer inputBuffer_;
     Buffer outputBuffer_;
+    boost::any context_;
 };
 
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;

@@ -2,8 +2,8 @@
 // Created by jxq on 20-3-5.
 //
 
-#include "../base/Logging.h"
-#include "../base/Thread.h"
+#include "../../base/Logging.h"
+#include "../../base/Thread.h"
 #include <string>
 #include <unistd.h>
 #include <vector>

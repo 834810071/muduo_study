@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY(book_study/Chapter06)
 ADD_SUBDIRECTORY(book_study/Chapter07)
 ADD_SUBDIRECTORY(book_study/Chapter08)
 ADD_SUBDIRECTORY(book_study/问题记载)
-ADD_SUBDIRECTORY(WebServer)
+ADD_SUBDIRECTORY(http)
+ADD_SUBDIRECTORY(http/test)
 
 add_executable(mymuduo main.cpp)

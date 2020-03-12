@@ -27,6 +27,7 @@ namespace muduo
                                   Buffer* buf,
                                   Timestamp)> MessageCallback;
     typedef boost::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
+    typedef std::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
     typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
 }
 

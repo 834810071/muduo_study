@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include<netinet/in.h>
 #include "../base/copyable.h"
+#include "SocketsOps.h"
 
 namespace muduo
 {
@@ -37,7 +38,17 @@ public:
 
     }
 
+    explicit InetAddress(const struct sockaddr_in6& addr)
+            : addr6_(addr)
+    { }
+
+
+    std::string toIpPort() const;
+
     std::string toHostPort() const;
+
+    const struct sockaddr* getSockAddr() const { return sockets::sockaddr_cast(&addr6_); }
+    void setSockAddrInet6(const struct sockaddr_in6& addr6) { addr6_ = addr6; }
 
     // default copy/assignment are Okay
     const struct sockaddr_in& getSockAddrInet() const
@@ -49,8 +60,16 @@ public:
         addr_ = addr;
     }
 
+
+
+
 private:
-    struct sockaddr_in addr_;
+    //struct sockaddr_in addr_;
+    union
+    {
+        struct sockaddr_in addr_;
+        struct sockaddr_in6 addr6_;
+    };
 };
 
 }

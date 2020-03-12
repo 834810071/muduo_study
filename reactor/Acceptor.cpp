@@ -8,11 +8,23 @@
 
 using namespace muduo;
 
-Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
+Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport)
     : loop_(loop),
       acceptSocket_(sockets::createNonblockingOrDie()), // 创建套接字 socket
       acceptChannel_(loop_, acceptSocket_.fd()),
       listenning_(false)
+{
+    acceptSocket_.setReuseAddr(true);   // 重复使用
+    acceptSocket_.setReusePort(reuseport);
+    acceptSocket_.bindAdddr(listenAddr);    // 绑定套接字    bind
+    acceptChannel_.setReadCallback(boost::bind(&Acceptor::handleRead, this));
+}
+
+Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
+        : loop_(loop),
+          acceptSocket_(sockets::createNonblockingOrDie()), // 创建套接字 socket
+          acceptChannel_(loop_, acceptSocket_.fd()),
+          listenning_(false)
 {
     acceptSocket_.setReuseAddr(true);   // 重复使用
     acceptSocket_.bindAdddr(listenAddr);    // 绑定套接字    bind

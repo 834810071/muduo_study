@@ -58,12 +58,13 @@ private:
     const int timerfd_;
     Channel timerfdChannel_;
     // Timer list sorted by expiration
-    TimerList timers_;
+    TimerList timers_;  // 按时间顺序排序
 
     // for cancel()
     bool callingExpiredTimers_; /* atomic */
+    // 按对象地址排序
     ActiveTimerSet activeTimers_;   // 保存的是目前有效的Timer指针，并满足timers_.size() == activeTimers_.size()
-    ActiveTimerSet cancelingTimers_;
+    ActiveTimerSet cancelingTimers_;    // 应对自注销这种情况，即在定时器回调当中注销当前定时器
 };
 
 }

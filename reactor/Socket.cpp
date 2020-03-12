@@ -10,6 +10,7 @@
 
 #include "Socket.h"
 #include "SocketsOps.h"
+#include "../base/Logging.h"
 
 using namespace muduo;
 
@@ -31,12 +32,12 @@ void Socket::listen()
 
 int Socket::accept(InetAddress* peeraddr)
 {
-    struct sockaddr_in addr;
+    struct sockaddr_in6 addr;
     bzero(&addr, sizeof addr);
     int connfd = sockets::accept(sockfd_, &addr);
     if (connfd >= 0)
     {
-        peeraddr->setSockAddrInet(addr);    // 设置客户端地址
+        peeraddr->setSockAddrInet6(addr);    // 设置客户端地址
     }
 
     return connfd;
@@ -60,4 +61,28 @@ void Socket::setTcpNoDelay(bool on)
     int optval = on ? 1 : 0;
     ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
             &optval, sizeof optval);
+}
+
+void Socket::setReusePort(bool on)
+{
+#ifdef SO_REUSEPORT
+    int optval = on ? 1 : 0;
+    int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                           &optval, static_cast<socklen_t>(sizeof optval));
+    if (ret < 0 && on)
+    {
+        LOG_SYSERR << "SO_REUSEPORT failed.";
+    }
+#else
+    if (on)
+  {
+    LOG_ERROR << "SO_REUSEPORT is not supported.";
+  }
+#endif
+}
+
+void Socket::setKeepAlive(bool on)
+{
+    int optval = on ? 1 : 0;
+    ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE, &optval, static_cast<socklen_t >(sizeof optval));
 }

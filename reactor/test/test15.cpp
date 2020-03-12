@@ -2,13 +2,6 @@
 // Created by jxq on 19-9-2.
 //
 
-//
-// Created by jxq on 19-9-1.
-//
-
-//
-// Created by jxq on 19-8-29.
-//
 
 #include <iostream>
 #include <sys/types.h>
@@ -16,6 +9,7 @@
 #include "../InetAddress.h"
 #include "../EventLoop.h"
 #include "../TcpServer.h"
+#include "../../base/Logging.h"
 #include <signal.h>
 
 using namespace std;
@@ -49,6 +43,7 @@ void onMessage(const TcpConnectionPtr& conn,
                muduo::Buffer* buf,
                Timestamp receiveTime)
 {
+    LOG_INFO << "onMessage";
     printf("onMessage(): received %zd bytes from connection [%s] at %s\n",
            buf->readableBytes(), conn->name().c_str(), receiveTime.toFormattedString().c_str());
 
