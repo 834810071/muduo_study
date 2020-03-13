@@ -20,5 +20,6 @@ ADD_SUBDIRECTORY(book_study/Chapter08)
 ADD_SUBDIRECTORY(book_study/问题记载)
 ADD_SUBDIRECTORY(http)
 ADD_SUBDIRECTORY(http/test)
+ADD_SUBDIRECTORY(reactor/test/test_timer)
 
 add_executable(mymuduo main.cpp)

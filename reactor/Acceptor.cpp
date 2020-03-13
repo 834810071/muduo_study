@@ -3,8 +3,10 @@
 //
 
 #include <boost/bind.hpp>
+#include <fcntl.h>
 #include "Acceptor.h"
 #include "SocketsOps.h"
+#include "../base/Logging.h"
 
 using namespace muduo;
 
@@ -12,7 +14,8 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reusepor
     : loop_(loop),
       acceptSocket_(sockets::createNonblockingOrDie()), // 创建套接字 socket
       acceptChannel_(loop_, acceptSocket_.fd()),
-      listenning_(false)
+      listenning_(false),
+      idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     acceptSocket_.setReuseAddr(true);   // 重复使用
     acceptSocket_.setReusePort(reuseport);
@@ -52,6 +55,20 @@ void Acceptor::handleRead()
         } else
         {
             sockets::close(connfd);
+        }
+    }
+    else
+    {
+        LOG_SYSERR << "in Acceptor::handleRead";
+        // Read the section named "The special problem of
+        // accept()ing when you can't" in libev's doc.
+        // By Marc Lehmann, author of libev.
+        if (errno == EMFILE)    // 当文件描述符达到上限
+        {
+            ::close(idleFd_);   //  先关闭空闲文件
+            idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL); // accept拿到新的连接
+            ::close(idleFd_);   // 再断开连接
+            idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC); // 重新打开空闲
         }
     }
 }
