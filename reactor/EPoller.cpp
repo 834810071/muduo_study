@@ -46,7 +46,7 @@ Timestamp EPoller::poll(int timeoutMs, ChannelList* activeChannels)
     int numEvents = ::epoll_wait(epollfd_,
                                  &*events_.begin(),
                                  static_cast<int>(events_.size()),
-                                 timeoutMs);
+                                 timeoutMs);    // 把准备就绪的socket拷贝到用户态内存，然后清空准备就绪list链表
     Timestamp now(Timestamp::now());
 
     if (numEvents > 0)
