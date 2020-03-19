@@ -27,10 +27,12 @@ namespace net
 class HttpRequest : public muduo::copyable
 {
  public:
+    // 请求方法
   enum Method
   {
     kInvalid, kGet, kPost, kHead, kPut, kDelete
   };
+    // 协议版本
   enum Version
   {
     kUnknown, kHttp10, kHttp11
@@ -136,16 +138,18 @@ class HttpRequest : public muduo::copyable
   {
     string field(start, colon);
     ++colon;
+    // 跳过 : 后面的空格
     while (colon < end && isspace(*colon))
     {
       ++colon;
     }
     string value(colon, end);
+    // 去除空格
     while (!value.empty() && isspace(value[value.size()-1]))
     {
       value.resize(value.size()-1);
     }
-    headers_[field] = value;
+    headers_[field] = value;  // 将解析出来的头信息放入map中
   }
 
   string getHeader(const string& field) const
@@ -173,12 +177,12 @@ class HttpRequest : public muduo::copyable
   }
 
  private:
-  Method method_;
-  Version version_;
-  string path_;
-  string query_;
-  Timestamp receiveTime_;
-  std::map<string, string> headers_;
+  Method method_; // 请求方法
+  Version version_; // 协议版本 1.0/1.1
+  string path_; // 请求路径
+  string query_;  // 请求参数
+  Timestamp receiveTime_; // 请求时间  eg:  /search  ?  hl=zh-CN&source=hp&q=domety&aq=f&oq=
+  std::map<string, string> headers_;  // header列表
 };
 
 }  // namespace net

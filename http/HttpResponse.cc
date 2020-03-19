@@ -18,9 +18,10 @@ using namespace muduo::net;
 void HttpResponse::appendToBuffer(muduo::Buffer* output) const
 {
   char buf[32];
+  // 构造响应行
   snprintf(buf, sizeof buf, "HTTP/1.1 %d ", statusCode_);
   output->append(buf);
-  output->append(statusMessage_);
+  output->append(statusMessage_); // 响应码对应的文本信息
   output->append("\r\n");
 
   if (closeConnection_)
@@ -29,11 +30,13 @@ void HttpResponse::appendToBuffer(muduo::Buffer* output) const
   }
   else
   {
+    // Keep-Alive需要Content-Length
     snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", body_.size());
     output->append(buf);
     output->append("Connection: Keep-Alive\r\n");
   }
 
+  // 迭代构造响应头
   for (const auto& header : headers_)
   {
     output->append(header.first);

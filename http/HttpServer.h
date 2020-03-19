@@ -13,6 +13,10 @@
 
 #include "../reactor/TcpServer.h"
 
+// 按照TcpServer接收连接->处理连接这个顺序来看，
+// 首先将调用onConnection，该函数为Tcp连接创建Http上下文变量HttpContext，
+// 这个类主要用于接收客户请求（这里为Http请求），并解析请求。
+
 namespace muduo
 {
 namespace net
@@ -59,7 +63,7 @@ class HttpServer : noncopyable
   void onRequest(const TcpConnectionPtr&, const HttpRequest&);
 
   TcpServer server_;
-  HttpCallback httpCallback_;
+  HttpCallback httpCallback_; // 在处理http请求（即调用onRequest）的过程中回调此函数，对请求进行具体的处理
 };
 
 }  // namespace net

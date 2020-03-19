@@ -14,17 +14,21 @@
 using namespace muduo;
 using namespace muduo::net;
 
+// 解析请求行
 bool HttpContext::processRequestLine(const char* begin, const char* end)
 {
+  // 请求方法 请求地址 协议版本
   bool succeed = false;
   const char* start = begin;
   const char* space = std::find(start, end, ' ');
-  if (space != end && request_.setMethod(start, space))
+
+  if (space != end && request_.setMethod(start, space)) // 设置请求方法
   {
     start = space+1;
     space = std::find(start, end, ' ');
     if (space != end)
     {
+      // 解析URI
       const char* question = std::find(start, space, '?');
       if (question != space)
       {
@@ -35,6 +39,7 @@ bool HttpContext::processRequestLine(const char* begin, const char* end)
       {
         request_.setPath(start, space);
       }
+      // 解析HTTP版本号
       start = space+1;
       succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
       if (succeed)
@@ -57,6 +62,7 @@ bool HttpContext::processRequestLine(const char* begin, const char* end)
   return succeed;
 }
 
+// 解析请求
 // return false if any error
 bool HttpContext::parseRequest(muduo::Buffer* buf, Timestamp receiveTime)
 {
@@ -64,15 +70,19 @@ bool HttpContext::parseRequest(muduo::Buffer* buf, Timestamp receiveTime)
   bool hasMore = true;
   while (hasMore)
   {
+    // 解析请求行
     if (state_ == kExpectRequestLine)
     {
-      const char* crlf = buf->findCRLF();
+      const char* crlf = buf->findCRLF();   //查找回车换行
       if (crlf)
       {
+        // 开始解析请求行
         ok = processRequestLine(buf->peek(), crlf);
         if (ok)
         {
+          // 解析成功
           request_.setReceiveTime(receiveTime);
+          // 回收请求行buffer
           buf->retrieveUntil(crlf + 2);
           state_ = kExpectHeaders;
         }
@@ -86,24 +96,28 @@ bool HttpContext::parseRequest(muduo::Buffer* buf, Timestamp receiveTime)
         hasMore = false;
       }
     }
+    // 解析请求头
     else if (state_ == kExpectHeaders)
     {
       const char* crlf = buf->findCRLF();
       if (crlf)
       {
+        // 请求头格式   Key : value
+        // 冒号
         const char* colon = std::find(buf->peek(), crlf, ':');
         if (colon != crlf)
         {
+            // 添加请求头键值对
           request_.addHeader(buf->peek(), colon, crlf);
         }
-        else
+        else    // 空行
         {
           // empty line, end of header
           // FIXME:
           state_ = kGotAll;
           hasMore = false;
         }
-        buf->retrieveUntil(crlf + 2);
+        buf->retrieveUntil(crlf + 2); // 回收
       }
       else
       {

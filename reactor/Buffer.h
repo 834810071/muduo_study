@@ -156,6 +156,7 @@ public:
     /// @return result of read(2), @c errno is saved
     ssize_t readFd(int fd, int* savedErrno);
 
+    // 查找回车换行
     const char* findCRLF() const
     {
         // FIXME: replace with memmem()?

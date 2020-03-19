@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
   HttpServer server(&loop, InetAddress(8000), "dummy");
   server.setHttpCallback(onRequest);
   server.setThreadNum(numThreads);
-  server.start();
+  server.start();  // 启动线程池
   loop.loop();
 }
 

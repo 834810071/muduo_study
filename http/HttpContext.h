@@ -16,6 +16,8 @@
 
 #include "HttpRequest.h"
 
+// HttpContext类对客户端发来的请求进行接收和解析，最终将解析出来的消息保存到了HttpRequest对象中
+
 namespace muduo
 {
 namespace net
@@ -26,6 +28,7 @@ class Buffer;
 class HttpContext : public muduo::copyable
 {
  public:
+  // 解析请求的状态
   enum HttpRequestParseState
   {
     kExpectRequestLine,
@@ -54,6 +57,7 @@ class HttpContext : public muduo::copyable
     request_.swap(dummy);
   }
 
+  // 返回Http请求
   const HttpRequest& request() const
   { return request_; }
 
@@ -61,10 +65,12 @@ class HttpContext : public muduo::copyable
   { return request_; }
 
  private:
+  // 解析请求行
   bool processRequestLine(const char* begin, const char* end);
 
-  HttpRequestParseState state_;
-  HttpRequest request_;
+  HttpRequestParseState state_; // 请求解析状态
+  // 解析的结果将保存在request_成员中
+  HttpRequest request_; // http请求
 };
 
 }  // namespace net
