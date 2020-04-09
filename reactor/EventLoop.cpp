@@ -93,7 +93,7 @@ void EventLoop::loop()
         {
             (*it)->handleEvent(pollReturnTime_);   // 调用对应的回调函数
         }
-        doPendingFunctors();
+        doPendingFunctors();    //处理用户在其他线程注册给IO线程的事件
     }
 
     LOG_TRACE << "EventLoop " << this << " stop looping";

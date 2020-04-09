@@ -56,7 +56,7 @@ int main() {
     server.setConnectionCallback(onConnection);
     server.setMessageCallback(onMessage);
     server.setWriteCompleteCallback(onWriteComplete);
-    server.setThreadNum(2); //双线程
+    server.setThreadNum(5); //双线程
 
     server.start();
 

@@ -130,7 +130,7 @@ void TcpConnection::handleClose()
     LOG_TRACE << "TcpConnection::handleClose state = " << state_;
     assert(state_ == kConnected || state_ == kDisconnecting);
     // we don't close fd, leave it to dtor[析构函数], so we can find leaks easily.
-    channel_->disableAll();
+    channel_->disableAll();     //不再关注任何事情
     // must be the last line
     closeCallback_(shared_from_this()); // 回调绑定到 TcpServer::handleClose()
 }
@@ -148,7 +148,7 @@ void TcpConnection::connectDestroyed()
     assert(state_ == kConnected || state_ == kDisconnecting);
     setState(kDisconnected);
     channel_->disableAll();
-    connectionCallback_(shared_from_this());
+    connectionCallback_(shared_from_this());    // 服务端通知功能
 
     loop_->removeChannel(get_pointer(channel_));
 }

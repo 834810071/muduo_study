@@ -57,7 +57,7 @@ void TcpServer::start()
     if (!started_)
     {
         started_ = true;
-        threadPool_->start();
+        threadPool_->start();   // 创建工作线程并loop()
     }
 
     if (!acceptor_->listenning())
@@ -89,7 +89,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
     conn->setWriteCompleteCallback(writeCompleteCallback_);
     conn->setCloseCallback(
             boost::bind(&TcpServer::removeConnection, this, _1));   // 向TcpConnection注册CloseCallback，用于接收连接断开的消息。
-    ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
+    ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));   //在某个线程池的loop中加入这个conn
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
