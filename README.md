@@ -34,7 +34,9 @@
 >> 参照《Linux多线程服务端编程：使用muduo C++网络库》实现
 
 
-[后台开发基础知识+Linux下的简易web服务器，实现web端用户注册，登录功能](https://github.com/qinguoyi/)   
+[后台开发基础知识+Linux下的简易web服务器，实现web端用户注册，登录功能](https://github.com/qinguoyi/)  
+
+[a cpp Web Server https://www.d2school.com](https://github.com/d2school/da4qi4)
 
 [A High Performance Multithread Network Library](https://github.com/silence1772/Sinetlib)
 
