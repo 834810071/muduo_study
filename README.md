@@ -57,3 +57,5 @@
 [学习muduo库](https://github.com/zhaozhengcoder/muduo)
 
 [muduo库中TcpServer一次完整的工作流程](https://www.cnblogs.com/ukernel/p/9191104.html)
+
+[muduo源码剖析学习总结](https://mp.weixin.qq.com/s/HpCH4_5Mw13GoUqm4JyrGQ)
